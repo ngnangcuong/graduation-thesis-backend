@@ -1,0 +1,11 @@
+app:
+  port: 8081
+  local_dir: D:\\go\\src\\graduation-thesis\\config\\asset
+
+logger:
+  level: debug
+  path: ./log/asset/info.log
+
+seaweed:
+  master_url: http://localhost:9333
+  volume_url: http://localhost:8080

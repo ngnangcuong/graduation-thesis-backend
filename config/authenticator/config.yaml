@@ -1,0 +1,12 @@
+app:
+  port: 8080
+
+redis:
+  url:
+
+user_service_url:
+
+at_expires:
+rt_expires:
+access_secret:
+refresh_secret:

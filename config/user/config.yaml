@@ -1,0 +1,14 @@
+postgres:
+  url: "host=localhost port=5432 user=? password=? dbname=user sslmode=disable application_name=user"
+
+redis:
+  url: localhost:6379
+
+token:
+  at_expires: 60*15 # 15 mins
+  rt_expires: 60*60*24 # 1 day
+  access_secret: 4cC3Ss_s3CrEt
+  refresh_secret: tErC3s_hS3rfer
+
+app:
+  port: 8080

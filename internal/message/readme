@@ -1,0 +1,6 @@
+Query pattern:
+  - Search all messages from user1 to user2
+  - Search all unread messages from user1 to user2
+  - Update a particular message
+
+(ParitionKey, ClusteringKey):

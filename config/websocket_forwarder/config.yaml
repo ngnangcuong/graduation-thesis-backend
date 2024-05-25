@@ -1,0 +1,14 @@
+app:
+  port:
+
+websocket_manager:
+  url:
+
+logger:
+  level:
+  path:
+
+timeout:
+max_retries:
+retry_interval:
+

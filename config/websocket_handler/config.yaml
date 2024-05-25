@@ -1,0 +1,21 @@
+id:
+fetch_interval:
+ping_interval:
+max_retries:
+retry_interval:
+cache_timeout:
+
+logger:
+  level:
+  path:
+
+kafka:
+  bootstrap_server:
+  message_max_bytes:
+  topic:
+
+3rd_party:
+  group_service_url:
+  message_service_url:
+  websocket_manager_url:
+  

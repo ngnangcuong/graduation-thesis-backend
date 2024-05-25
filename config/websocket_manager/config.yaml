@@ -1,0 +1,20 @@
+app:
+  port:
+
+logger:
+  level:
+  path:
+
+redis:
+  url:
+
+kafka:
+  bootstrap_servers:
+  group_id:
+  topics:
+
+service:
+  max_retries:
+  retry_interval:
+  heartbeat_interval:
+  

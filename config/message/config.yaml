@@ -1,0 +1,6 @@
+cassandra:
+  hosts: ["192.168.5.8:3128"]
+  keyspace:
+
+app:
+  port: 8080

@@ -1,0 +1,17 @@
+logger:
+  path:
+  level:
+
+kafka:
+  bootstrap_servers:
+  group_id:
+  topics:
+
+3rd_party:
+  group_url:
+  websocket_manager_url:
+
+timeout:
+max_retries:
+retry_interval:
+ping_interval:
