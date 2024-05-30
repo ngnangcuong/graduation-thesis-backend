@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  message_service:
+    image: message_service:1.0
+    ports: 
+      - "8090:8090"
+    deploy:
+      resources:
+        limits:
+          memory: 60m
+    volumes:
+      - '../config/message_service/:/graduation-thesis/config/message_service/'
