@@ -256,7 +256,7 @@ func (m *MessageService) SendMessage(ctx context.Context, request *model.SendMes
 	return &successMessage, nil
 }
 
-func (m *MessageService) InsertUserInboxes(ctx context.Context, conversationID, sender string, content []byte, convMsgID, messageTime int64) error {
+func (m *MessageService) InsertUserInboxes(ctx context.Context, conversationID, sender, content string, convMsgID, messageTime int64) error {
 	var (
 		readReceipts []*model.ReadReceipt
 		err          error

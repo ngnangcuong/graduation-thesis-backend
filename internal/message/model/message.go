@@ -53,7 +53,7 @@ type ConversationMessage struct {
 	ConversationMessageID int64  `json:"conv_msg_id" cql:"conv_msg_id"`
 	MessageTime           int64  `json:"msg_time" cql:"msg_time"`
 	Sender                string `json:"sender" cql:"sender"`
-	Content               []byte `json:"content" cql:"content"`
+	Content               string `json:"content" cql:"content"`
 }
 
 type UserInbox struct {
@@ -63,7 +63,7 @@ type UserInbox struct {
 	ConversationMessageID int64  `json:"conv_msg_id" cql:"conv_msg_id"`
 	MessageTime           int64  `json:"msg_time" cql:"msg_time"`
 	Sender                string `json:"sender" cql:"sender"`
-	Content               []byte `json:"content" cql:"content"`
+	Content               string `json:"content" cql:"content"`
 }
 
 type ReadReceipt struct {
@@ -82,7 +82,7 @@ type MessageResponse struct {
 	ConversationMessageID int64  `json:"conv_msg_id"`
 	MessageTime           int64  `json:"msg_time"`
 	Sender                string `json:"sender"`
-	Content               []byte `json:"content"`
+	Content               string `json:"content"`
 }
 
 type ReadReceiptRequest struct {
@@ -103,7 +103,7 @@ type ReadReceiptUpdate struct {
 type SendMessageRequest struct {
 	ConversationID string `json:"conv_id" binding:"required"`
 	Sender         string `json:"sender" binding:"required"`
-	Content        []byte `json:"content" binding:"required,max=10000"`
+	Content        string `json:"content" binding:"required,max=10000"`
 	MessageTime    int64  `json:"msg_time"`
 }
 

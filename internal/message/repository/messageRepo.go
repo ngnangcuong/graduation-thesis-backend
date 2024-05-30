@@ -176,7 +176,7 @@ func (m *MessageRepo) UpdateReadReceipts(ctx context.Context, conversationID str
 	return err
 }
 
-func (m *MessageRepo) CreateConversationMessage(ctx context.Context, conversationID, sender string, content []byte, messageTime int64) (int64, error) {
+func (m *MessageRepo) CreateConversationMessage(ctx context.Context, conversationID, sender, content string, messageTime int64) (int64, error) {
 	getQuery := `SELECT conv_msg_id FROM conv_msg WHERE conv_id = ? LIMIT 1`
 	var lastConvMsgID int64
 	getErr := m.session.Query(getQuery, conversationID).WithContext(ctx).Scan(&lastConvMsgID)
@@ -220,7 +220,7 @@ func (m *MessageRepo) CreateConversationMessage(ctx context.Context, conversatio
 	return lastConvMsgID + 1, nil
 }
 
-func (m *MessageRepo) InsertUserInbox(ctx context.Context, userID, conversationID, sender string, content []byte, convMsgID, messageTime int64) error {
+func (m *MessageRepo) InsertUserInbox(ctx context.Context, userID, conversationID, sender, content string, convMsgID, messageTime int64) error {
 	getQuery := `SELECT inbox_msg_id FROM user_inbox WHERE user_id = ? LIMIT 1`
 	var lastInboxMsgID int64
 	getErr := m.session.Query(getQuery, userID).WithContext(ctx).Scan(&lastInboxMsgID)
