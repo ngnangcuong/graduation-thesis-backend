@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"graduation-thesis/internal/message/model"
 	"time"
 
@@ -179,7 +180,7 @@ func (m *MessageRepo) CreateConversationMessage(ctx context.Context, conversatio
 	getQuery := `SELECT conv_msg_id FROM conv_msg WHERE conv_id = ? LIMIT 1`
 	var lastConvMsgID int64
 	getErr := m.session.Query(getQuery, conversationID).WithContext(ctx).Scan(&lastConvMsgID)
-	if getErr != nil {
+	if getErr != nil && !errors.Is(getErr, gocql.ErrNotFound) {
 		return int64(0), getErr
 	}
 
@@ -223,7 +224,7 @@ func (m *MessageRepo) InsertUserInbox(ctx context.Context, userID, conversationI
 	getQuery := `SELECT inbox_msg_id FROM user_inbox WHERE user_id = ? LIMIT 1`
 	var lastInboxMsgID int64
 	getErr := m.session.Query(getQuery, userID).WithContext(ctx).Scan(&lastInboxMsgID)
-	if getErr != nil {
+	if getErr != nil && errors.Is(getErr, gocql.ErrNotFound) {
 		return getErr
 	}
 
