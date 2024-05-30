@@ -100,7 +100,13 @@ func (m *MessageRepo) GetUserInbox(ctx context.Context, userID string, limit, la
 	var userInboxes []*model.UserInbox
 	for scanner.Next() {
 		var userInbox model.UserInbox
-		if err := scanner.Scan(&userInbox); err != nil {
+		if err := scanner.Scan(&userInbox.UserID,
+			&userInbox.InboxMessageID,
+			&userInbox.ConversationID,
+			&userInbox.ConversationMessageID,
+			&userInbox.MessageTime,
+			&userInbox.Sender,
+			&userInbox.Content); err != nil {
 			return nil, err
 		}
 
@@ -115,13 +121,17 @@ func (m *MessageRepo) GetUserInbox(ctx context.Context, userID string, limit, la
 }
 
 func (m *MessageRepo) GetConversationMessages(ctx context.Context, conversationID string, limit int, beforeMsg int64) ([]*model.ConversationMessage, error) {
-	query := `SELECT conv_id, conv_name, conv_msg_id, msg_time, sender, content FROM conv_msg WHERE conv_id = ? AND conv_msg_id < ? LIMIT ?`
+	query := `SELECT conv_id, conv_msg_id, msg_time, sender, content FROM conv_msg WHERE conv_id = ? AND conv_msg_id < ? LIMIT ?`
 	scanner := m.session.Query(query, conversationID, beforeMsg, limit).WithContext(ctx).Iter().Scanner()
 
 	var conversationMessages []*model.ConversationMessage
 	for scanner.Next() {
 		var conversationMessage model.ConversationMessage
-		if err := scanner.Scan(&conversationMessage); err != nil {
+		if err := scanner.Scan(&conversationMessage.ConversationID,
+			&conversationMessage.ConversationMessageID,
+			&conversationMessage.MessageTime,
+			&conversationMessage.Sender,
+			&conversationMessage.Content); err != nil {
 			return nil, err
 		}
 
@@ -137,7 +147,7 @@ func (m *MessageRepo) GetConversationMessages(ctx context.Context, conversationI
 func (m *MessageRepo) GetReadReceipt(ctx context.Context, conversationID, userID string) (*model.ReadReceipt, error) {
 	query := `SELECT conv_id, user_id, last_seen_msg FROM read_receipt WHERE conv_id = ? AND user_ID = ?`
 	var readReceipt model.ReadReceipt
-	err := m.session.Query(query, conversationID, userID).WithContext(ctx).Consistency(gocql.One).Scan(&readReceipt)
+	err := m.session.Query(query, conversationID, userID).WithContext(ctx).Consistency(gocql.One).Scan(&readReceipt.ConversationID, &readReceipt.UserID, &readReceipt.MessageID)
 	return &readReceipt, err
 }
 
@@ -148,7 +158,7 @@ func (m *MessageRepo) GetReadReceipts(ctx context.Context, conversationID string
 	var readReceipts []*model.ReadReceipt
 	for scanner.Next() {
 		var readReceipt model.ReadReceipt
-		if err := scanner.Scan(&readReceipt); err != nil {
+		if err := scanner.Scan(&readReceipt.ConversationID, &readReceipt.UserID, &readReceipt.MessageID); err != nil {
 			return nil, err
 		}
 
