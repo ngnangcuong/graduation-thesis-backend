@@ -21,6 +21,7 @@ func HTTPRequestCall(url, method, apiKey string, body io.Reader, timeout time.Du
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
+	req.Header.Set("X-User-ID", apiKey)
 
 	client := http.Client{
 		Timeout: timeout,

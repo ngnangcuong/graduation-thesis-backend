@@ -2,10 +2,12 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"graduation-thesis/internal/message/model"
 	"graduation-thesis/internal/message/repository"
 	"graduation-thesis/pkg/logger"
 	responseModel "graduation-thesis/pkg/model"
+	request "graduation-thesis/pkg/requests"
 	"math"
 	"net/http"
 	"time"
@@ -14,8 +16,9 @@ import (
 const MAXRETRY = 5
 
 type MessageService struct {
-	messageRepo *repository.MessageRepo
-	logger      logger.Logger
+	messageRepo     *repository.MessageRepo
+	logger          logger.Logger
+	groupServiceUrl string
 }
 
 func NewMessageService(messageRepo *repository.MessageRepo, logger logger.Logger) *MessageService {
@@ -111,41 +114,69 @@ func (m *MessageService) UserInbox(ctx context.Context, userID string, limit, of
 		return nil, &errorMessage
 	}
 
-	var conversationList = make(map[string][]*model.MessageResponse)
-	userInboxResponse := model.UserInboxResponse{
-		UserID: userID,
-	}
-	for _, userInbox := range userInboxes {
-		if _, ok := conversationList[userInbox.ConversationID]; !ok {
-			conversationList[userInbox.ConversationID] = make([]*model.MessageResponse, 0)
-		}
-
-		conversationList[userInbox.ConversationID] = append(conversationList[userInbox.ConversationID], &model.MessageResponse{
-			ConversationMessageID: userInbox.ConversationMessageID,
-			MessageTime:           userInbox.MessageTime,
-			Sender:                userInbox.Sender,
-			Content:               userInbox.Content,
-		})
-	}
-
-	userInboxResponse.Inboxes = make([]model.Inbox, 0, len(conversationList))
-	for conversationID, messageResponses := range conversationList {
-		inboxEntry := model.Inbox{
-			Count:          len(messageResponses),
-			ConversationID: conversationID,
-			Messages:       messageResponses,
-		}
-		userInboxResponse.Inboxes = append(userInboxResponse.Inboxes, inboxEntry)
-	}
 	successResponse := responseModel.SuccessResponse{
 		Status: http.StatusOK,
-		Result: userInboxResponse,
+		Result: userInboxes,
 	}
 
 	return &successResponse, nil
 }
 
-func (m *MessageService) GetConversationMessages(ctx context.Context, conversationID string, limit int, beforeMsg int64) (*responseModel.SuccessResponse, *responseModel.ErrorResponse) {
+func (m *MessageService) getConversationMembers(ctx context.Context, userID, conversationID string) ([]string, error) {
+	var (
+		result interface{}
+		err    error
+	)
+	for i := 1; i <= 5; i++ {
+		result, err = request.HTTPRequestCall(
+			fmt.Sprintf("%s/v1/conversation/%s", m.groupServiceUrl, conversationID),
+			http.MethodGet,
+			userID,
+			nil,
+			5*time.Second,
+		)
+		if err != nil {
+			time.Sleep(time.Second)
+			continue
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	type conversation struct {
+		ID      string
+		Members []string
+	}
+
+	members := result.(conversation).Members
+	return members, nil
+}
+
+func (m *MessageService) GetConversationMessages(ctx context.Context, userID, conversationID string, limit int, beforeMsg int64) (*responseModel.SuccessResponse, *responseModel.ErrorResponse) {
+	conversationMembers, cErr := m.getConversationMembers(ctx, userID, conversationID)
+	if cErr != nil {
+		errorMessage := responseModel.ErrorResponse{
+			Status:       http.StatusInternalServerError,
+			ErrorMessage: cErr.Error(),
+		}
+		return nil, &errorMessage
+	}
+
+	isInConversation := false
+	for _, member := range conversationMembers {
+		if userID == member {
+			isInConversation = true
+			break
+		}
+	}
+	if !isInConversation {
+		errorMessage := responseModel.ErrorResponse{
+			Status:       http.StatusUnauthorized,
+			ErrorMessage: "only members can see conversation'messages",
+		}
+		return nil, &errorMessage
+	}
 	if beforeMsg <= 0 {
 		beforeMsg = math.MaxInt64
 	}
@@ -212,6 +243,15 @@ func (m *MessageService) UpdateReadReceipts(ctx context.Context, updateReadRecei
 		return nil, &errorMessage
 	}
 
+	go func(m *MessageService, ctx context.Context, updateReadReceiptRequest *model.UpdateReadReceiptRequest) {
+		for _, readReceipt := range updateReadReceiptRequest.ReadReceiptUpdate {
+			if err := m.DeleteUserInbox(ctx, readReceipt.UserID); err != nil {
+				m.logger.Errorf("[DeleteUserInbox] Cannot clear user %v inbox: %v", readReceipt.UserID, err)
+				time.Sleep(time.Second)
+			}
+		}
+	}(m, ctx, updateReadReceiptRequest)
+
 	successResponse := responseModel.SuccessResponse{
 		Status: http.StatusNoContent,
 	}
@@ -258,25 +298,35 @@ func (m *MessageService) SendMessage(ctx context.Context, request *model.SendMes
 
 func (m *MessageService) InsertUserInboxes(ctx context.Context, conversationID, sender, content string, convMsgID, messageTime int64) error {
 	var (
-		readReceipts []*model.ReadReceipt
-		err          error
+		members []string
+		err     error
 	)
 	for i := 0; i < MAXRETRY; i++ {
-		readReceipts, err = m.messageRepo.GetReadReceipts(ctx, conversationID) // TODO: Review???
+		members, err = m.getConversationMembers(ctx, sender, conversationID)
 		if err == nil {
 			break
 		}
+		m.logger.Errorf("[InsertUserInboxes] Cannot get conversation %s 'members: %v", conversationID, err)
+		time.Sleep(time.Second)
 	}
 	if err != nil {
 		return err
 	}
 
-	for _, readReceipt := range readReceipts {
-		if readReceipt.UserID == sender {
+	for _, member := range members {
+		if member == sender {
 			continue
 		}
 
-		go m.messageRepo.InsertUserInbox(ctx, readReceipt.UserID, conversationID, sender, content, convMsgID, messageTime)
+		go m.messageRepo.InsertUserInbox(ctx, member, conversationID, sender, content, convMsgID, messageTime)
+	}
+
+	return nil
+}
+
+func (m *MessageService) DeleteUserInbox(ctx context.Context, userID string) error {
+	if err := m.messageRepo.DeleteUserInbox(ctx, userID); err != nil {
+		return err
 	}
 
 	return nil

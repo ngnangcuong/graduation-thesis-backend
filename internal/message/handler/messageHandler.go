@@ -82,6 +82,14 @@ func (m *MessageHandler) SearchConversation(c *gin.Context) {
 
 func (m *MessageHandler) Inboxes(c *gin.Context) {
 	userID := c.Param("user_id")
+	if userID != c.Request.Header.Get("X-User-ID") {
+		errorMessage := responseModel.ErrorResponse{
+			Status:       http.StatusUnauthorized,
+			ErrorMessage: "cannot query another user's inbox",
+		}
+		c.JSON(errorMessage.Status, errorMessage)
+		return
+	}
 	limitQuery := c.DefaultQuery("limit", "1000")
 	offsetQuery := c.DefaultQuery("offset", "1")
 	lastInboxQuery := c.DefaultQuery("last_inbox", "0")
@@ -107,6 +115,7 @@ func (m *MessageHandler) Inboxes(c *gin.Context) {
 }
 
 func (m *MessageHandler) ConversationMessages(c *gin.Context) {
+	userID := c.Request.Header.Get("X-User-ID")
 	conversationID := c.Param("conv_id")
 	limitQuery := c.DefaultQuery("limit", "20")
 	beforeMsgQuery := c.DefaultQuery("before_msg", "0")
@@ -121,7 +130,7 @@ func (m *MessageHandler) ConversationMessages(c *gin.Context) {
 		return
 	}
 
-	successResponse, errorResponse := m.messageService.GetConversationMessages(c, conversationID, limit, beforeMsg)
+	successResponse, errorResponse := m.messageService.GetConversationMessages(c, userID, conversationID, limit, beforeMsg)
 	if errorResponse != nil {
 		c.JSON(errorResponse.Status, errorResponse)
 		return

@@ -285,14 +285,7 @@ func (w *Worker) ForwardUnreadMessage(conn *websocket.Conn, userID string) {
 			}
 
 			for _, message := range unreadMessages {
-				if !connection.Write(model.Message{
-					ConversationID:        message.ConversationID,
-					ConversationMessageID: message.ConversationMessageID,
-					MessageTime:           message.MessageTime,
-					Sender:                message.Sender,
-					Content:               message.Content,
-					Receiver:              userID,
-				}) {
+				if !connection.Write(message) {
 					return
 				}
 			}
@@ -330,17 +323,9 @@ func (w *Worker) handleMessageReadFromUser(message *model.Message, userID string
 	// }
 
 	receiveUser := message.Receiver
-
-	messageSend := model.Message{
-		ConversationID:        message.ConversationID,
-		ConversationMessageID: message.ConversationMessageID,
-		MessageTime:           message.MessageTime,
-		Sender:                message.Sender,
-		Content:               message.Content,
-		Receiver:              userID,
-	}
-	if err := w.ForwardMessage(&messageSend, receiveUser); err != nil {
-		w.logger.Errorf("")
+	if err := w.ForwardMessage(message, receiveUser); err != nil {
+		w.logger.Errorf("[handleMessageReadFromUser] Cannot forward message from user %v to user %v: %v",
+			message.Sender, receiveUser, err)
 		return
 	}
 
@@ -435,37 +420,57 @@ func (w *Worker) StoreMessage(message *model.Message) (int64, error) {
 	conversationMessageID, _ := result.(int64)
 	return conversationMessageID, nil
 }
-
 func (w *Worker) GetUnreadMessage(userID string) ([]model.Message, error) {
-	conversations, err := w.GetListConversations(userID)
+	userInbox, err := w.GetUserInbox(userID)
 	if err != nil {
 		return nil, err
 	}
 
-	var unreadMessages []model.Message
-	for _, conversation := range conversations {
-		readReceipt, rErr := w.GetReadReceipt(conversation, userID)
-		if rErr != nil {
-			w.logger.Errorf("")
-			continue
+	var messages []model.Message
+	for _, inbox := range userInbox {
+		message := model.Message{
+			ConversationID:        inbox.ConversationID,
+			ConversationMessageID: inbox.ConversationMessageID,
+			MessageTime:           inbox.MessageTime,
+			Sender:                inbox.Sender,
+			Content:               inbox.Content,
+			Receiver:              userID,
 		}
-		lastMessage, lErr := w.GetLastMessage(conversation)
-		if lErr != nil {
-			w.logger.Errorf("")
-			continue
-		}
-
-		if readReceipt.MessageID < lastMessage.ConversationMessageID {
-			messages, err := w.GetMessages(conversation, readReceipt.MessageID)
-			if err != nil {
-				w.logger.Errorf("")
-				continue
-			}
-			unreadMessages = append(unreadMessages, messages...)
-		}
+		messages = append(messages, message)
 	}
-	return unreadMessages, nil
+	return messages, nil
 }
+
+// func (w *Worker) GetUnreadMessage(userID string) ([]model.Message, error) {
+// 	conversations, err := w.GetListConversations(userID)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	var unreadMessages []model.Message
+// 	for _, conversation := range conversations {
+// 		readReceipt, rErr := w.GetReadReceipt(conversation, userID)
+// 		if rErr != nil {
+// 			w.logger.Errorf("")
+// 			continue
+// 		}
+// 		lastMessage, lErr := w.GetLastMessage(conversation)
+// 		if lErr != nil {
+// 			w.logger.Errorf("")
+// 			continue
+// 		}
+
+// 		if readReceipt.MessageID < lastMessage.ConversationMessageID {
+// 			messages, err := w.GetMessages(conversation, readReceipt.MessageID)
+// 			if err != nil {
+// 				w.logger.Errorf("")
+// 				continue
+// 			}
+// 			unreadMessages = append(unreadMessages, messages...)
+// 		}
+// 	}
+// 	return unreadMessages, nil
+// }
 
 func (w *Worker) GetUsersOfConversation(conversationID string) ([]string, error) {
 	var (
@@ -474,7 +479,7 @@ func (w *Worker) GetUsersOfConversation(conversationID string) ([]string, error)
 	)
 	for i := 1; i <= w.maxRetries; i++ {
 		result, err = request.HTTPRequestCall(
-			fmt.Sprintf("%s/%s", w.groupServiceUrl, conversationID),
+			fmt.Sprintf("%s/conversation/%s", w.groupServiceUrl, conversationID),
 			http.MethodGet,
 			"",
 			nil,
@@ -598,7 +603,7 @@ func (w *Worker) ForwardMessage(message *model.Message, userID string) error {
 	// Then we should query to Websocket Manager to fetch the info
 	websocketHandler, err := w.GetWebsocketHandlerConnectUser(userID)
 	if err != nil { // Might be connection issue or user has been offline for while
-		w.logger.Errorf("")
+		w.logger.Errorf("[ForwardMessage] Cannot get websocket handler connecting to user %v: %v", userID, err)
 		return err
 	}
 	if websocketHandler.ID == w.id { // Skip the case that result return is itself
@@ -778,6 +783,35 @@ func (w *Worker) GetMessages(conversationID string, lastMessageID int64) ([]mode
 	}
 
 	messages, _ := result.([]model.Message)
+	return messages, nil
+}
+
+func (w *Worker) GetUserInbox(userID string) ([]*model.UserInbox, error) {
+	var (
+		result interface{}
+		err    error
+	)
+
+	for i := 1; i <= w.maxRetries; i++ {
+		result, err = request.HTTPRequestCall(
+			fmt.Sprintf("%s/message/inbox/%s", w.messageServiceUrl, userID),
+			http.MethodGet,
+			userID,
+			nil,
+			5*time.Second,
+		)
+		if err != nil {
+			w.logger.Errorf("[GetUserInbox] Cannot get user %v inbox: %v", userID, err)
+			continue
+		}
+		break
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	messages, _ := result.([]*model.UserInbox)
 	return messages, nil
 }
 
