@@ -15,6 +15,6 @@ kafka:
 
 service:
   max_retries: 5
-  retry_interval: 1
-  heartbeat_interval: 15
+  retry_interval: 1s
+  heartbeat_interval: 15s
   

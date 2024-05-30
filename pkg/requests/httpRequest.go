@@ -37,12 +37,14 @@ func HTTPRequestCall(url, method, apiKey string, body io.Reader, timeout time.Du
 
 	resBody, err := io.ReadAll(res.Body)
 	if err != nil {
+		fmt.Println(err.Error())
 		return nil, custom_error.ErrInternalServerError
 	}
 
 	if isSuccessResponse(res.StatusCode) {
 		var successResponse model.SuccessResponse
 		if err := json.Unmarshal(resBody, &successResponse); err != nil {
+			fmt.Println(err.Error())
 			return nil, custom_error.ErrInternalServerError
 		}
 
@@ -51,6 +53,7 @@ func HTTPRequestCall(url, method, apiKey string, body io.Reader, timeout time.Du
 
 	var errorResponse model.ErrorResponse
 	if err := json.Unmarshal(resBody, &errorResponse); err != nil {
+		fmt.Println(err.Error())
 		return nil, custom_error.ErrInternalServerError
 	}
 

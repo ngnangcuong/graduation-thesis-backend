@@ -103,6 +103,7 @@ func (w *Worker) EstablishPeerConnetion(websocketHandler *model.WebsocketHandler
 }
 
 func (w *Worker) KeepPeersConnection(conn *websocket.Conn, websocketID string) error {
+	w.logger.Infof("[WebsocketHandler %v] Connected to Websocket Handler %v", websocketID, websocketID)
 	defer conn.Close()
 
 	w.wg.Add(1)
@@ -126,11 +127,11 @@ func (w *Worker) KeepPeersConnection(conn *websocket.Conn, websocketID string) e
 				_, isCloseErr := err.(*websocket.CloseError)
 				_, isNetErr := err.(*net.OpError)
 				if isCloseErr || isNetErr { // Connection disconnected
-					w.logger.Errorf("")
+					w.logger.Errorf("[WebsocketHandler %v] Disconnecting to websocket handler %v:%v", websocketID, websocketID, err)
 					w.removePeerFromMap(connection, websocketID)
 					return
 				}
-				w.logger.Errorf("")
+				w.logger.Errorf("[WebsocketHandler %v] Error happens when read message from websocket handler %v:%v", websocketID, websocketID, err)
 				continue
 			}
 
@@ -151,13 +152,14 @@ func (w *Worker) KeepPeersConnection(conn *websocket.Conn, websocketID string) e
 				_, isCloseErr := err.(*websocket.CloseError)
 				_, isNetErr := err.(*net.OpError)
 				if isCloseErr || isNetErr { // Connection disconnected
-					w.logger.Errorf("")
+					w.logger.Errorf("[WebsocketHandler %v] Disconnecting to websocket handler %v:%v", websocketID, websocketID, err)
 					w.removePeerFromMap(connection, websocketID)
 
 					return nil
 				}
 
-				w.logger.Errorf("")
+				w.logger.Errorf("[WebsocketHandler %v] Error happens when try to send message from websocket handler %v:%v",
+					websocketID, websocketID, err)
 			}
 		case <-done:
 			return nil
@@ -178,8 +180,10 @@ func (w *Worker) KeepPeersConnection(conn *websocket.Conn, websocketID string) e
 }
 
 func (w *Worker) KeepUsersConnection(conn *websocket.Conn, userID string) error {
+	w.logger.Infof("[%v] Connected user %v successfully", userID)
 	defer conn.Close()
 	if err := w.AddNewUser(userID); err != nil {
+		w.logger.Errorf("[%v] Destroying user %v connection because we cannot notify to Websocket Manager: %v", userID, err)
 		return err
 	}
 
@@ -203,9 +207,9 @@ func (w *Worker) KeepUsersConnection(conn *websocket.Conn, userID string) error 
 				_, isCloseErr := err.(*websocket.CloseError)
 				_, isNetErr := err.(*net.OpError)
 				if isCloseErr || isNetErr { // Connection disconnected
-					w.logger.Errorf("")
+					w.logger.Errorf("[%v] Detroying user %v connection: %v", userID, userID, err)
 					if err := w.removeUserFromMap(connection, userID); err != nil {
-						w.logger.Errorf("")
+						w.logger.Errorf("[%v] Removing user %v failed while destroying connection: %v", userID, userID, err)
 					}
 
 					return
@@ -214,6 +218,7 @@ func (w *Worker) KeepUsersConnection(conn *websocket.Conn, userID string) error 
 			}
 
 			w.concurrent <- struct{}{}
+			w.logger.Debugf("[%v] User %v send message %v", userID, userID, message)
 			go w.handleMessageReadFromUser(&message, userID)
 		}
 	}(conn, w, userID, done)
@@ -232,15 +237,15 @@ func (w *Worker) KeepUsersConnection(conn *websocket.Conn, userID string) error 
 				_, isCloseErr := err.(*websocket.CloseError)
 				_, isNetErr := err.(*net.OpError)
 				if isCloseErr || isNetErr { // Connection disconnected
-					w.logger.Errorf("")
+					w.logger.Errorf("[%v] Detroying user %v connection: %v", userID, userID, err)
 					if err := w.removeUserFromMap(connection, userID); err != nil {
-						w.logger.Errorf("")
+						w.logger.Errorf("[%v] Removing user %v failed while destroying connection: %v", userID, userID, err)
 					}
 
 					return nil
 				}
 
-				w.logger.Errorf("")
+				w.logger.Errorf("[%v] Error happens when try to send message to user %v: %v", userID, userID, err)
 			}
 		case <-done:
 			return nil
@@ -496,7 +501,7 @@ func (w *Worker) Register() error {
 	}
 	body := new(bytes.Buffer)
 	if err := json.NewEncoder(body).Encode(&registerRequest); err != nil {
-		w.logger.Errorf("")
+		w.logger.Errorf("[Register] Cannot register to Websocket Manager: %v", err)
 		return err
 	}
 
@@ -511,7 +516,7 @@ func (w *Worker) Register() error {
 		)
 
 		if err != nil {
-			w.logger.Errorf("")
+			w.logger.Errorf("[Register] Cannot send register to Websocket Manager for %d times: %v", i, err)
 			time.Sleep(w.retryInterval)
 			continue
 		}
@@ -526,6 +531,7 @@ func (w *Worker) Register() error {
 }
 
 func (w *Worker) HeartBeat() {
+	w.logger.Infof("[Heartbeat] Starting Heartbeat to Websocket Manager")
 	timer := time.NewTimer(w.pingInterval)
 	defer timer.Stop()
 
@@ -538,7 +544,7 @@ func (w *Worker) HeartBeat() {
 			}
 			body := new(bytes.Buffer)
 			if err := json.NewEncoder(body).Encode(&pingRequest); err != nil {
-				w.logger.Errorf("")
+				w.logger.Errorf("[Heartbeat] Cannot encode ping request: %v", err)
 				timer.Reset(w.pingInterval)
 				continue
 			}
@@ -550,8 +556,12 @@ func (w *Worker) HeartBeat() {
 				w.pingInterval,
 			)
 			if errors.Is(err, custom_error.ErrNotFound) {
-				w.logger.Errorf("")
+				w.logger.Errorf("[Heartbeat] Websocket Manager gets rid of our existence. Register again")
+				if err := w.Register(); err != nil {
+					w.logger.Errorf("[Heartbeat] Try to Register later because this Register again failed: %v", err)
+				}
 			}
+			w.logger.Debug("[Heartbeat] Sending Heartbeat successfully")
 			timer.Reset(w.pingInterval)
 		case <-w.done:
 			return
@@ -590,7 +600,7 @@ func (w *Worker) ForwardMessage(message *model.Message, userID string) error {
 		return err
 	}
 	if websocketHandler.ID == w.id { // Skip the case that result return is itself
-		w.logger.Errorf("")
+		w.logger.Errorf("[ForwardMessage] Information may not be updated in time")
 		return nil
 	}
 
@@ -599,6 +609,7 @@ func (w *Worker) ForwardMessage(message *model.Message, userID string) error {
 	peerConnection := w.mapPeer.Get(websocketHandler.ID)
 	if peerConnection == nil { // If not, we're gonna establish the connection with peer
 		if err := w.EstablishPeerConnetion(websocketHandler); err != nil { // May be the peer has down ?
+			w.logger.Errorf("[ForwardMessage] Cannot establish peer %v connection: %v", websocketHandler.ID, err)
 			return err
 		}
 		time.Sleep(time.Second) // Wait for completing establishing connection
@@ -629,7 +640,8 @@ func (w *Worker) GetWebsocketHandlerConnectUser(userID string) (*model.Websocket
 			5*time.Second,
 		)
 		if err != nil {
-			w.logger.Errorf("")
+			w.logger.Errorf("[GetWebsocketHandlerConnectUser] Getting Websocket Handler connecting user %v failed for %dth times: %v",
+				userID, i, err)
 			time.Sleep(w.retryInterval)
 			continue
 		}
@@ -657,7 +669,8 @@ func (w *Worker) GetListConversations(userID string) ([]string, error) {
 			30*time.Second,
 		)
 		if err != nil {
-			w.logger.Errorf("")
+			w.logger.Errorf("[GetListConversations] Get list conversations of user %v failed for %dth times: %v",
+				userID, i, err)
 			continue
 		}
 		break

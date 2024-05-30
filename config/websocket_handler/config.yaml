@@ -1,11 +1,11 @@
 app:
   port: 8081
 id: 1
-fetch_interval: 60
-ping_interval: 5
+fetch_interval: 60s
+ping_interval: 5s
 max_retries: 5
-retry_interval: 1
-cache_timeout: 30
+retry_interval: 1s
+cache_timeout: 30s
 
 logger:
   level: debug
@@ -19,5 +19,5 @@ kafka:
 3rd_party:
   group_service_url: http://deployments-websocket_manager-1:8080
   message_service_url: http://deployments-websocket_manager-1:8080
-  websocket_manager_url: http://deployments-websocket_manager-1:8080/v1/websocket_handler
+  websocket_manager_url: http://localhost:8080/v1/websocket_handler
   
