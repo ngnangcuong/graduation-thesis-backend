@@ -2,19 +2,25 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"graduation-thesis/internal/message/model"
 	"time"
 
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/gocql/gocql"
 )
 
 type MessageRepo struct {
-	session *gocql.Session
+	session    *gocql.Session
+	producer   *kafka.Producer
+	kafkaTopic string
 }
 
-func NewMessageRepo(session *gocql.Session) *MessageRepo {
+func NewMessageRepo(session *gocql.Session, producer *kafka.Producer, kafkaTopic string) *MessageRepo {
 	return &MessageRepo{
-		session: session,
+		session:    session,
+		producer:   producer,
+		kafkaTopic: kafkaTopic,
 	}
 }
 
@@ -181,6 +187,33 @@ func (m *MessageRepo) CreateConversationMessage(ctx context.Context, conversatio
 	createErr := m.session.Query(createQuery, conversationID, lastConvMsgID+1, messageTime, sender, content).WithContext(ctx).Exec()
 	if createErr != nil {
 		return int64(0), createErr
+	}
+
+	conversationMessage := model.ConversationMessage{
+		ConversationID:        conversationID,
+		ConversationMessageID: lastConvMsgID + 1,
+		MessageTime:           messageTime,
+		Sender:                sender,
+		Content:               content,
+	}
+
+	kafkaMessage := model.KafkaMessage{
+		UserID:         sender,
+		ConversationID: conversationID,
+		Type:           model.MESSAGE_TYPE,
+		Timestamp:      messageTime,
+		Data:           conversationMessage,
+	}
+	value, err := json.Marshal(kafkaMessage)
+	if err != nil {
+		return 0, err
+	}
+
+	if err := m.producer.Produce(&kafka.Message{
+		TopicPartition: kafka.TopicPartition{Topic: &m.kafkaTopic, Partition: int32(kafka.PartitionAny)},
+		Value:          value,
+	}, nil); err != nil {
+		return 0, err
 	}
 
 	return lastConvMsgID + 1, nil

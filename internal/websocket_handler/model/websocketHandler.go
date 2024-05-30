@@ -9,6 +9,7 @@ type WebsocketHandlerClient struct {
 }
 
 type AddNewWebsocketHandlerRequest struct {
+	ID        string `json:"id"`
 	IPAddress string `json:"ip_address"`
 }
 
@@ -20,7 +21,7 @@ type PingRequest struct {
 type Connection struct {
 	Mu                 sync.RWMutex
 	WebsocketHandlerID string
-	WriteChannel       chan MessageSend
+	WriteChannel       chan Message
 	IsDeleted          bool // For coodinating concurrent reads and writes
 }
 
@@ -39,7 +40,7 @@ func (c *Connection) Delete() {
 	}
 }
 
-func (c *Connection) Write(message MessageSend) bool {
+func (c *Connection) Write(message Message) bool {
 	c.Mu.RLock()
 	defer c.Mu.RUnlock()
 	if !c.IsDeleted {

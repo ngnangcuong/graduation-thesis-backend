@@ -30,12 +30,11 @@ func (w *WebsocketManagerRepo) Get(ctx context.Context, websocketHandlerID strin
 }
 
 func (w *WebsocketManagerRepo) GetWebsocketHandlers(ctx context.Context) (map[string]string, error) {
-	result := make(map[string]string)
-	err := w.redis.HGetAll(ctx, LISTWEBSOCKETKEY).Scan(&result)
-	if err != nil {
+	result := w.redis.HGetAll(ctx, LISTWEBSOCKETKEY)
+	if err := result.Err(); err != nil {
 		return nil, custom_error.HandleRedisError(err)
 	}
-	return result, nil
+	return result.Val(), nil
 }
 
 func (w *WebsocketManagerRepo) GetAWebsocketHandler(ctx context.Context, websocketHandlerID string) (*model.WebsocketHandlerClient, error) {

@@ -52,7 +52,8 @@ func (con *ConversationHandler) CreateConversation(c *gin.Context) {
 }
 
 func (con *ConversationHandler) GetConversationsContainUser(c *gin.Context) {
-	userID := c.Param("user_id")
+	// userID := c.Param("user_id")
+	userID := c.Request.Header.Get("X-User-ID")
 	successResponse, errorResponse := con.conversationService.GetConversationsContainUser(c, userID)
 	if errorResponse != nil {
 		c.JSON(errorResponse.Status, errorResponse)

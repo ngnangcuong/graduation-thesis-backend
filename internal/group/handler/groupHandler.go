@@ -20,7 +20,8 @@ func NewGroupHandler(groupService *service.GroupService) *GroupHandler {
 }
 
 func (g *GroupHandler) GetGroup(c *gin.Context) {
-	userID := c.MustGet("user_id").(string)
+	// userID := c.MustGet("user_id").(string)
+	userID := c.Request.Header.Get("X-User-ID")
 	groupID := c.Param("group_id")
 	groupName := c.Param("group_name")
 
@@ -34,7 +35,9 @@ func (g *GroupHandler) GetGroup(c *gin.Context) {
 }
 
 func (g *GroupHandler) CreateGroup(c *gin.Context) {
-	userID := c.MustGet("user_id").(string)
+	// userID := c.MustGet("user_id").(string)
+	userID := c.Request.Header.Get("X-User-ID")
+
 	var createGroupRequest model.CreateGroupRequest
 	if err := c.ShouldBindJSON(&createGroupRequest); err != nil {
 		errorResponse := responseModel.ErrorResponse{
@@ -57,7 +60,8 @@ func (g *GroupHandler) CreateGroup(c *gin.Context) {
 
 func (g *GroupHandler) UpdateGroup(c *gin.Context) {
 	groupID := c.Param("group_id")
-	userID := c.MustGet("user_id").(string)
+	userID := c.Request.Header.Get("X-User-ID")
+	// userID := c.MustGet("user_id").(string)
 	var updateGroupRequest model.UpdateGroupRequest
 	if err := c.ShouldBindJSON(&updateGroupRequest); err != nil {
 		errorResponse := responseModel.ErrorResponse{
@@ -79,7 +83,8 @@ func (g *GroupHandler) UpdateGroup(c *gin.Context) {
 
 func (g *GroupHandler) DeleteGroup(c *gin.Context) {
 	groupID := c.Param("group_id")
-	userID := c.MustGet("user_id").(string)
+	userID := c.Request.Header.Get("X-User-ID")
+	// userID := c.MustGet("user_id").(string)
 	successResponse, errorResponse := g.groupService.DeleteGroup(c, groupID, userID)
 	if errorResponse != nil {
 		c.JSON(errorResponse.Status, errorResponse)

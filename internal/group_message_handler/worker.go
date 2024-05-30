@@ -115,16 +115,18 @@ func (w *Worker) processMessage(message *kafka.Message) {
 		return
 	}
 
+	data := kafkaMessage.Data.(ConversationMessage)
+
 	for _, user := range users {
-		if user == kafkaMessage.Sender {
+		if user == kafkaMessage.UserID {
 			continue
 		}
 		message := Message{
-			ConversationID:        kafkaMessage.ConversationID,
-			ConversationMessageID: kafkaMessage.ConversationMessageID,
-			MessageTime:           kafkaMessage.MessageTime,
-			Sender:                kafkaMessage.Sender,
-			Content:               kafkaMessage.Content,
+			ConversationID:        data.ConversationID,
+			ConversationMessageID: data.ConversationMessageID,
+			MessageTime:           data.MessageTime,
+			Sender:                data.Sender,
+			Content:               data.Content,
 			Receiver:              user,
 		}
 		go w.sendMessage(user, message)

@@ -1,20 +1,20 @@
 app:
-  port:
+  port: 8080
 
 logger:
-  level:
-  path:
+  level: debug
+  path: ./log/websocket_manager/info.log
 
 redis:
-  url:
+  url: redis://deployments-redis-1:6379/0
 
 kafka:
-  bootstrap_servers:
-  group_id:
-  topics:
+  bootstrap_servers: deployments-kafka-1:9092
+  group_id: websocket_manager
+  topics: websocket_connection
 
 service:
-  max_retries:
-  retry_interval:
-  heartbeat_interval:
+  max_retries: 5
+  retry_interval: 1
+  heartbeat_interval: 15
   

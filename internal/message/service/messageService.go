@@ -265,7 +265,7 @@ func (m *MessageService) InsertUserInboxes(ctx context.Context, conversationID, 
 		}
 	}
 	if err != nil {
-		return nil
+		return err
 	}
 
 	for _, readReceipt := range readReceipts {

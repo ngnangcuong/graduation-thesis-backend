@@ -30,7 +30,7 @@ func Run() {
 	kafkaProducer := storage.GetKafkaProducer(viper.GetString("kafka.bootstrap_servers"), viper.GetInt("kafka.message_max_bytes"))
 	defer kafkaProducer.Close()
 
-	messageRepo := repository.NewMessageRepo(session)
+	messageRepo := repository.NewMessageRepo(session, kafkaProducer, viper.GetString("kafka.topic"))
 	messageService := service.NewMessageService(messageRepo)
 	messageHandler := handler.NewMessageHandler(messageService)
 

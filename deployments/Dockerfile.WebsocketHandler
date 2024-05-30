@@ -1,0 +1,41 @@
+FROM golang:1.21-alpine3.17 AS builder
+
+ENV PATH="/go/bin:${PATH}"
+ENV GO111MODULE=on
+ENV CGO_ENABLED=1
+ENV GOOS=linux
+ENV GOARCH=amd64
+
+WORKDIR /graduation-thesis
+
+COPY ./go.mod ./go.sum ./
+RUN go mod download
+
+RUN mkdir -p cmd/websocket_handler
+RUN mkdir -p internal/websocket_handler
+RUN mkdir -p pkg
+RUN mkdir -p config/websocket_handler
+RUN mkdir -p log/websocket_handler
+RUN touch log/websocket_handler/info.log
+
+COPY ./cmd/websocket_handler/main.go ./cmd/websocket_handler
+COPY ./internal/websocket_handler ./internal/websocket_handler
+COPY ./pkg ./pkg
+COPY ./config/websocket_handler/config.yaml ./config/websocket_handler
+RUN go mod download
+
+RUN apk -U add ca-certificates
+RUN apk update && apk upgrade && apk add pkgconf git bash build-base sudo
+RUN git clone https://github.com/edenhill/librdkafka.git && cd librdkafka && ./configure --prefix /usr && make && make install
+
+# COPY . .
+
+RUN go build -tags musl --ldflags "-extldflags -static" -o main cmd/websocket_handler/main.go
+
+# FROM scratch AS runner
+
+# COPY --from=builder /graduation-thesis/main /
+
+# EXPOSE 8080
+
+ENTRYPOINT ["./main"]

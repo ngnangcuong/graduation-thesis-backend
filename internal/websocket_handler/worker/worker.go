@@ -110,7 +110,7 @@ func (w *Worker) KeepPeersConnection(conn *websocket.Conn, websocketID string) e
 
 	peerConnection := model.Connection{
 		WebsocketHandlerID: websocketID,
-		WriteChannel:       make(chan model.MessageSend, 100),
+		WriteChannel:       make(chan model.Message, 100),
 		IsDeleted:          false,
 	}
 	w.mapPeer.Set(websocketID, &peerConnection)
@@ -120,7 +120,7 @@ func (w *Worker) KeepPeersConnection(conn *websocket.Conn, websocketID string) e
 		defer close(done)
 		connection := w.mapPeer.Get(websocketID)
 		for {
-			var message model.MessageSend
+			var message model.Message
 			err := conn.ReadJSON(&message)
 			if err != nil {
 				_, isCloseErr := err.(*websocket.CloseError)
@@ -187,7 +187,7 @@ func (w *Worker) KeepUsersConnection(conn *websocket.Conn, userID string) error 
 	defer w.wg.Done()
 	userConnection := model.Connection{
 		WebsocketHandlerID: w.id,
-		WriteChannel:       make(chan model.MessageSend, 100),
+		WriteChannel:       make(chan model.Message, 100),
 		IsDeleted:          false,
 	}
 	w.mapUser.Set(userID, &userConnection)
@@ -197,7 +197,7 @@ func (w *Worker) KeepUsersConnection(conn *websocket.Conn, userID string) error 
 		defer close(done)
 		connection := w.mapUser.Get(userID)
 		for {
-			var message model.MessageRead
+			var message model.Message
 			err := conn.ReadJSON(&message)
 			if err != nil {
 				_, isCloseErr := err.(*websocket.CloseError)
@@ -280,7 +280,7 @@ func (w *Worker) ForwardUnreadMessage(conn *websocket.Conn, userID string) {
 			}
 
 			for _, message := range unreadMessages {
-				if !connection.Write(model.MessageSend{
+				if !connection.Write(model.Message{
 					ConversationID:        message.ConversationID,
 					ConversationMessageID: message.ConversationMessageID,
 					MessageTime:           message.MessageTime,
@@ -296,7 +296,7 @@ func (w *Worker) ForwardUnreadMessage(conn *websocket.Conn, userID string) {
 	}
 }
 
-func (w *Worker) handleMessageReadFromUser(message *model.MessageRead, userID string) {
+func (w *Worker) handleMessageReadFromUser(message *model.Message, userID string) {
 	var err error
 
 	message.ConversationMessageID, err = w.StoreMessage(message)
@@ -306,30 +306,27 @@ func (w *Worker) handleMessageReadFromUser(message *model.MessageRead, userID st
 		return
 	}
 
-	if !message.IsDirect {
+	if message.Receiver == "" {
 		w.logger.Debug("")
 		<-w.concurrent
 		return
 	}
 
-	users, err := w.GetUsersOfConversation(message.ConversationID)
-	if err != nil {
-		w.logger.Errorf("")
-		<-w.concurrent
-		return
-	}
-	if len(users) > 2 {
-		w.logger.Debugf("")
-		<-w.concurrent
-		return
-	}
+	// users, err := w.GetUsersOfConversation(message.ConversationID)
+	// if err != nil {
+	// 	w.logger.Errorf("")
+	// 	<-w.concurrent
+	// 	return
+	// }
+	// if len(users) > 2 {
+	// 	w.logger.Debugf("")
+	// 	<-w.concurrent
+	// 	return
+	// }
 
-	receiveUser := users[0]
-	if users[0] == message.Sender {
-		receiveUser = users[1]
-	}
+	receiveUser := message.Receiver
 
-	messageSend := model.MessageSend{
+	messageSend := model.Message{
 		ConversationID:        message.ConversationID,
 		ConversationMessageID: message.ConversationMessageID,
 		MessageTime:           message.MessageTime,
@@ -391,7 +388,7 @@ func (w *Worker) RemoveUser(userID string) error {
 	return nil
 }
 
-func (w *Worker) StoreMessage(message *model.MessageRead) (int64, error) {
+func (w *Worker) StoreMessage(message *model.Message) (int64, error) {
 	sendMessageRequest := model.SendMessageRequest{
 		ConversationID: message.ConversationID,
 		Sender:         message.Sender,
@@ -432,13 +429,13 @@ func (w *Worker) StoreMessage(message *model.MessageRead) (int64, error) {
 	return conversationMessageID, nil
 }
 
-func (w *Worker) GetUnreadMessage(userID string) ([]model.MessageRead, error) {
+func (w *Worker) GetUnreadMessage(userID string) ([]model.Message, error) {
 	conversations, err := w.GetListConversations(userID)
 	if err != nil {
 		return nil, err
 	}
 
-	var unreadMessages []model.MessageRead
+	var unreadMessages []model.Message
 	for _, conversation := range conversations {
 		readReceipt, rErr := w.GetReadReceipt(conversation, userID)
 		if rErr != nil {
@@ -470,7 +467,7 @@ func (w *Worker) GetUsersOfConversation(conversationID string) ([]string, error)
 	)
 	for i := 1; i <= w.maxRetries; i++ {
 		result, err = request.HTTPRequestCall(
-			fmt.Sprintf("%s/%s", w.websocketManagerUrl, conversationID),
+			fmt.Sprintf("%s/%s", w.groupServiceUrl, conversationID),
 			http.MethodGet,
 			"",
 			nil,
@@ -494,6 +491,7 @@ func (w *Worker) GetUsersOfConversation(conversationID string) ([]string, error)
 func (w *Worker) Register() error {
 	ipAddress := GetLocalIP()
 	registerRequest := model.AddNewWebsocketHandlerRequest{
+		ID:        w.id,
 		IPAddress: fmt.Sprintf("%s:%d", ipAddress, viper.GetInt("app.port")),
 	}
 	body := new(bytes.Buffer)
@@ -505,7 +503,7 @@ func (w *Worker) Register() error {
 	var err error
 	for i := 1; i <= w.maxRetries; i++ {
 		_, err = request.HTTPRequestCall(
-			fmt.Sprintf("%s/register", w.websocketManagerUrl),
+			fmt.Sprintf("%s/websocket_handler/register", w.websocketManagerUrl),
 			http.MethodPost,
 			"",
 			body,
@@ -545,7 +543,7 @@ func (w *Worker) HeartBeat() {
 				continue
 			}
 			_, err := request.HTTPRequestCall(
-				fmt.Sprintf("%s/ping", w.websocketManagerUrl),
+				fmt.Sprintf("%s/websocket_handler/ping", w.websocketManagerUrl),
 				http.MethodPost,
 				"",
 				body,
@@ -561,7 +559,7 @@ func (w *Worker) HeartBeat() {
 	}
 }
 
-func (w *Worker) ForwardMessage(message *model.MessageSend, userID string) error {
+func (w *Worker) ForwardMessage(message *model.Message, userID string) error {
 	defer func(w *Worker) {
 		<-w.concurrent
 	}(w)
@@ -624,7 +622,7 @@ func (w *Worker) GetWebsocketHandlerConnectUser(userID string) (*model.Websocket
 	)
 	for i := 1; i <= w.maxRetries; i++ {
 		result, err = request.HTTPRequestCall(
-			fmt.Sprintf("%s/%s", w.websocketManagerUrl, userID),
+			fmt.Sprintf("%s/user/%s", w.websocketManagerUrl, userID),
 			http.MethodGet,
 			"",
 			nil,
@@ -673,7 +671,7 @@ func (w *Worker) GetListConversations(userID string) ([]string, error) {
 	return conversations, nil
 }
 
-func (w *Worker) GetLastMessage(conversationID string) (*model.MessageRead, error) {
+func (w *Worker) GetLastMessage(conversationID string) (*model.Message, error) {
 	var (
 		result interface{}
 		err    error
@@ -697,7 +695,7 @@ func (w *Worker) GetLastMessage(conversationID string) (*model.MessageRead, erro
 		return nil, err
 	}
 
-	message, _ := result.([]model.MessageRead)
+	message, _ := result.([]model.Message)
 	return &message[0], nil
 }
 
@@ -739,7 +737,7 @@ func (w *Worker) GetReadReceipt(conversationID, userID string) (*model.ReadRecei
 	return &readReceipt, nil
 }
 
-func (w *Worker) GetMessages(conversationID string, lastMessageID int64) ([]model.MessageRead, error) {
+func (w *Worker) GetMessages(conversationID string, lastMessageID int64) ([]model.Message, error) {
 	var (
 		result interface{}
 		err    error
@@ -764,7 +762,7 @@ func (w *Worker) GetMessages(conversationID string, lastMessageID int64) ([]mode
 		return nil, err
 	}
 
-	messages, _ := result.([]model.MessageRead)
+	messages, _ := result.([]model.Message)
 	return messages, nil
 }
 

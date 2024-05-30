@@ -2,6 +2,11 @@ package model
 
 import "time"
 
+const (
+	MESSAGE_TYPE = "message"
+	EVENT_TYPE   = "event"
+)
+
 type Message struct {
 	ID          string    `cql:"id" json:"id"`
 	From        string    `cql:"from" json:"from"`
@@ -33,6 +38,14 @@ type SearchConversionRequest struct {
 
 type EvictMessageRequest struct {
 	ID string `json:"id" binding:"required"`
+}
+
+type KafkaMessage struct {
+	UserID         string      `json:"user_id"`
+	ConversationID string      `json:"conversation_id"`
+	Type           string      `json:"type"`
+	Timestamp      int64       `json:"timestamp"`
+	Data           interface{} `json:"data"`
 }
 
 type ConversationMessage struct {

@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  websocket_handler:
+    image: websocket_handler:1.0
+    ports: 
+      - "8081:8081"
+    volumes:
+      - '../config/websocket_handler/:/graduation-thesis/config/websocket_handler/'
+    deploy:
+      resources:
+        limits:
+          memory: 60m

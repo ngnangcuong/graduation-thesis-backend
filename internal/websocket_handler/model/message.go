@@ -1,15 +1,6 @@
 package model
 
-type MessageRead struct {
-	ConversationID        string `json:"conv_id"`
-	ConversationMessageID int64  `json:"conv_msg_id"`
-	MessageTime           int64  `json:"msg_time"`
-	Sender                string `json:"sender"`
-	Content               []byte `json:"content"`
-	IsDirect              bool   `json:"is_direct"`
-}
-
-type MessageSend struct {
+type Message struct {
 	ConversationID        string `json:"conv_id"`
 	ConversationMessageID int64  `json:"conv_msg_id"`
 	MessageTime           int64  `json:"msg_time"`

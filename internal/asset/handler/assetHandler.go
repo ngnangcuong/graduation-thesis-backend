@@ -22,7 +22,7 @@ func NewAssetHandler(localDir string, assetService *service.AssetService) *Asset
 }
 
 func (a *AssetHandler) Upload(c *gin.Context) {
-	userID := c.MustGet("user_id")
+	// userID := c.MustGet("user_id")
 	file, err := c.FormFile("file")
 	if err != nil {
 		errorResponse := responseModel.ErrorResponse{
@@ -32,7 +32,7 @@ func (a *AssetHandler) Upload(c *gin.Context) {
 		c.JSON(errorResponse.Status, errorResponse)
 		return
 	}
-	location := fmt.Sprintf("%s\\%s_%s", a.localDir, userID, file.Filename) // Handle name
+	location := fmt.Sprintf("%s\\%s_%s", a.localDir, "userID", file.Filename) // Handle name
 	c.SaveUploadedFile(file, location)
 
 	successResponse, errorResponse := a.assetService.Upload(c, location, file.Header.Get("Content-Type"))
@@ -41,7 +41,9 @@ func (a *AssetHandler) Upload(c *gin.Context) {
 		return
 	}
 
-	c.JSON(successResponse.Status, successResponse)
+	c.JSON(successResponse.Status, gin.H{
+		"location": successResponse.Result,
+	})
 }
 
 func (a *AssetHandler) Get(c *gin.Context) {

@@ -38,6 +38,7 @@ func deleteFile(filePath string) error {
 }
 
 func (a *AssetService) Upload(ctx context.Context, location, dataType string) (*responseModel.SuccessResponse, *responseModel.ErrorResponse) {
+	a.logger.Info("Here")
 	f, err := getFile(location)
 	if err != nil {
 		errorResponse := responseModel.ErrorResponse{
