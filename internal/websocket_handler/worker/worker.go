@@ -355,6 +355,7 @@ func (w *Worker) AddNewUser(userID string) error {
 	}
 	value, err := json.Marshal(kafkaMessage)
 	if err != nil {
+		w.logger.Error("Here")
 		return err
 	}
 
@@ -364,6 +365,7 @@ func (w *Worker) AddNewUser(userID string) error {
 	},
 		nil)
 	if pErr != nil {
+		w.logger.Error("Here1")
 		return pErr
 	}
 

@@ -19,7 +19,7 @@ func NewChanMessage(size int) *ChanMessage {
 
 func (c *ChanMessage) Send(message Message) error {
 	c.mu.RLock()
-	defer c.mu.Unlock()
+	defer c.mu.RUnlock()
 	if !c.isClosed {
 		c.Channel <- message
 		return nil

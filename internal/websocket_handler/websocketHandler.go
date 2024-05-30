@@ -48,7 +48,7 @@ func Run() {
 	worker := worker.NewWorker(
 		viper.GetString("id"),
 		kafkaProducer,
-		viper.GetString("kakfa.topic"),
+		viper.GetString("kafka.topic"),
 		viper.GetString("3rd_party.group_service_url"),
 		viper.GetString("3rd_party.message_service_url"),
 		viper.GetString("3rd_party.websocket_manager_url"),

@@ -9,7 +9,7 @@ redis:
   url: redis://deployments-redis-1:6379/0
 
 kafka:
-  bootstrap_servers: deployments-kafka-1:9092
+  bootstrap_servers: kafka:9092
   group_id: websocket_manager
   topics: websocket_connection
 

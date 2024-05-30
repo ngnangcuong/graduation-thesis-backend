@@ -15,7 +15,7 @@ func NewMapConnection() *MapConnection {
 
 func (m *MapConnection) Get(key string) *Connection {
 	m.mu.RLock()
-	defer m.mu.Unlock()
+	defer m.mu.RUnlock()
 	return m.data[key]
 }
 
