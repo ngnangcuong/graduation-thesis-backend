@@ -42,7 +42,7 @@ func NewWebsocketManagerService(
 		websocketManagerRepo: websocketManagerRepo,
 		userRepo:             userRepo,
 		errorMap:             errorMap,
-		mu:                   make([]*sync.Mutex, 0, numMu),
+		mu:                   make([]*sync.Mutex, numMu),
 		numMu:                numMu,
 		websocketHandlers:    model.NewMapWebsocketHandlerMonitoring(),
 		heartbeatInterval:    heartbeatInterval,

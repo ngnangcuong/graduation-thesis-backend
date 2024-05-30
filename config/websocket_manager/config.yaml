@@ -17,4 +17,5 @@ service:
   max_retries: 5
   retry_interval: 1s
   heartbeat_interval: 15s
+  number_mutex: 100
   
