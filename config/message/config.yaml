@@ -7,7 +7,9 @@ kafka:
   message_max_bytes: 10000000
   topic: messages
 
-
+logger:
+  level: debug
+  path: ./log/message/info.log
 
 app:
   port: 8090

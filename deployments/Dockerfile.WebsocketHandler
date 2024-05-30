@@ -11,6 +11,10 @@ WORKDIR /graduation-thesis
 COPY ./go.mod ./go.sum ./
 RUN go mod download
 
+RUN apk -U add ca-certificates
+RUN apk update && apk upgrade && apk add pkgconf git bash build-base sudo
+RUN git clone https://github.com/edenhill/librdkafka.git && cd librdkafka && ./configure --prefix /usr && make && make install
+
 RUN mkdir -p cmd/websocket_handler
 RUN mkdir -p internal/websocket_handler
 RUN mkdir -p pkg
@@ -24,9 +28,6 @@ COPY ./pkg ./pkg
 COPY ./config/websocket_handler/config.yaml ./config/websocket_handler
 RUN go mod download
 
-RUN apk -U add ca-certificates
-RUN apk update && apk upgrade && apk add pkgconf git bash build-base sudo
-RUN git clone https://github.com/edenhill/librdkafka.git && cd librdkafka && ./configure --prefix /usr && make && make install
 
 # COPY . .
 
