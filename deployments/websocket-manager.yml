@@ -11,12 +11,23 @@ services:
           memory: 60m
     volumes:
       - '../config/websocket_manager/:/graduation-thesis/config/websocket_manager/'
-  websocket_handler:
+  websocket_handler_1:
     image: websocket_handler:1.0
     ports: 
       - "8081:8081"
     volumes:
       - '../config/websocket_handler/:/graduation-thesis/config/websocket_handler/'
+    deploy:
+      resources:
+        limits:
+          memory: 60m
+  
+  websocket_handler_2:
+    image: websocket_handler:1.0
+    ports: 
+      - "8082:8082"
+    volumes:
+      - '../config/websocket_handler_2/:/graduation-thesis/config/websocket_handler/'
     deploy:
       resources:
         limits:

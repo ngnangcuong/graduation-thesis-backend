@@ -266,6 +266,7 @@ func (w *WebsocketManagerService) AddNewUser(ctx context.Context, request *model
 
 	websocketHandlerRequest, err := w.websocketManagerRepo.GetAWebsocketHandler(ctx, request.WebsocketID)
 	if err != nil {
+		w.logger.Infof("Here")
 		errorResponse := responseModel.ErrorResponse{
 			Status:       w.errorMap[err],
 			ErrorMessage: err.Error(),
@@ -275,6 +276,7 @@ func (w *WebsocketManagerService) AddNewUser(ctx context.Context, request *model
 
 	currentWebsocketHandler, cErr := w.userRepo.Get(ctx, request.UserID)
 	if cErr != nil && !errors.Is(cErr, custom_error.ErrNotFound) { // TODO: Handle more things when error is ErrNotFound
+		w.logger.Infof("Here1")
 		errorResponse := responseModel.ErrorResponse{
 			Status:       w.errorMap[cErr],
 			ErrorMessage: cErr.Error(),
@@ -284,6 +286,7 @@ func (w *WebsocketManagerService) AddNewUser(ctx context.Context, request *model
 
 	if currentWebsocketHandler != nil && currentWebsocketHandler.ID != websocketHandlerRequest.ID {
 		if err := w.websocketManagerRepo.Remove(ctx, currentWebsocketHandler.ID, request.UserID); err != nil {
+			w.logger.Infof("Here2")
 			errorResponse := responseModel.ErrorResponse{
 				Status:       w.errorMap[cErr],
 				ErrorMessage: cErr.Error(),
@@ -293,6 +296,7 @@ func (w *WebsocketManagerService) AddNewUser(ctx context.Context, request *model
 	}
 
 	if err := w.userRepo.Set(ctx, request.UserID, *websocketHandlerRequest); err != nil {
+		w.logger.Infof("Here3")
 		errorResponse := responseModel.ErrorResponse{
 			Status:       w.errorMap[err],
 			ErrorMessage: err.Error(),

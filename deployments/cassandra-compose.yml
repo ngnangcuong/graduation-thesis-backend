@@ -1,0 +1,33 @@
+version: "3"
+
+# make sure that docker machine has enough memory to run the cluster.
+# setting it up to 4GB seems to work.
+
+# after all nodes in cassandra cluster are active, run this command in powershell or git bash
+# docker run --rm --network cassandra -v "$(pwd)/data.cql:/scripts/data.cql" -e CQLSH_HOST=cassandra_node_1 -e CQLSH_PORT=9042 -e CQLVERSION=3.4.7 nuvo/docker-cqlsh
+
+services:
+
+  cassandra-1:
+    image: cassandra:5.0
+    container_name: cassandra_node_1
+    ports:
+      - "9042:9042"
+    volumes:
+      - "cassandra_data_1:/var/lib/cassandra"
+    environment:
+      - "CASSANDRA_SEEDS=cassandra-1"
+      - "CASSANDRA_CLUSTER_NAME=graduation-thesis"
+  #      needed for setting up custom cluster name
+      - "CASSANDRA_DC=se1"
+      - "CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch"
+    deploy:
+      resources:
+        limits:
+          memory: 1000m
+    # networks:
+    #   - cassandra
+  #    restart: always
+
+volumes:
+  cassandra_data_1:

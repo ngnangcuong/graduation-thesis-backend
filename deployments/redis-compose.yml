@@ -15,6 +15,7 @@ services:
       resources:
         limits:
           memory: 60m
+    restart: unless-stopped
 
 volumes:
   redis_data:

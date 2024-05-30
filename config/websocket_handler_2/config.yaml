@@ -1,0 +1,23 @@
+app:
+  port: 8082
+id: 2
+fetch_interval: 60s
+ping_interval: 5s
+max_retries: 5
+retry_interval: 1s
+cache_timeout: 30s
+
+logger:
+  level: debug
+  path: ./log/websocket_handler/info.log
+
+kafka:
+  bootstrap_server: kafka:9092
+  message_max_bytes: 10000000
+  topic: websocket_connection
+
+3rd_party:
+  group_service_url: http://deployments-websocket_manager-1:8080
+  message_service_url: http://deployments-websocket_manager-1:8080
+  websocket_manager_url: http://websocket_manager:8080/v1
+  

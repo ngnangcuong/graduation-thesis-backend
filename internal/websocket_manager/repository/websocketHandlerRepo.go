@@ -38,8 +38,7 @@ func (w *WebsocketManagerRepo) GetWebsocketHandlers(ctx context.Context) (map[st
 }
 
 func (w *WebsocketManagerRepo) GetAWebsocketHandler(ctx context.Context, websocketHandlerID string) (*model.WebsocketHandlerClient, error) {
-	var ipAddress string
-	err := w.redis.HGet(ctx, LISTWEBSOCKETKEY, websocketHandlerID).Scan(&ipAddress)
+	ipAddress, err := w.redis.HGet(ctx, LISTWEBSOCKETKEY, websocketHandlerID).Result()
 	if err != nil {
 		return nil, custom_error.HandleRedisError(err)
 	}
