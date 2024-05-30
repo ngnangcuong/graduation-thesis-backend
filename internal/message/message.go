@@ -5,6 +5,7 @@ import (
 	"graduation-thesis/internal/message/handler"
 	"graduation-thesis/internal/message/repository"
 	"graduation-thesis/internal/message/service"
+	"graduation-thesis/pkg/logger"
 	"graduation-thesis/pkg/storage"
 	"net/http"
 	"sync"
@@ -30,8 +31,16 @@ func Run() {
 	kafkaProducer := storage.GetKafkaProducer(viper.GetString("kafka.bootstrap_servers"), viper.GetInt("kafka.message_max_bytes"))
 	defer kafkaProducer.Close()
 
+	logger, err := logger.GetLogger(
+		viper.GetString("logger.level"),
+		viper.GetString("logger.path"),
+	)
+	if err != nil {
+		panic(err)
+	}
+
 	messageRepo := repository.NewMessageRepo(session, kafkaProducer, viper.GetString("kafka.topic"))
-	messageService := service.NewMessageService(messageRepo)
+	messageService := service.NewMessageService(messageRepo, logger)
 	messageHandler := handler.NewMessageHandler(messageService)
 
 	router := handler.GetRouter(messageHandler)

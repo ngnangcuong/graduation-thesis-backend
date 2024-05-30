@@ -4,6 +4,7 @@ import (
 	"context"
 	"graduation-thesis/internal/message/model"
 	"graduation-thesis/internal/message/repository"
+	"graduation-thesis/pkg/logger"
 	responseModel "graduation-thesis/pkg/model"
 	"math"
 	"net/http"
@@ -14,11 +15,13 @@ const MAXRETRY = 5
 
 type MessageService struct {
 	messageRepo *repository.MessageRepo
+	logger      logger.Logger
 }
 
-func NewMessageService(messageRepo *repository.MessageRepo) *MessageService {
+func NewMessageService(messageRepo *repository.MessageRepo, logger logger.Logger) *MessageService {
 	return &MessageService{
 		messageRepo: messageRepo,
+		logger:      logger,
 	}
 }
 

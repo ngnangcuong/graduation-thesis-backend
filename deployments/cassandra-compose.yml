@@ -25,6 +25,7 @@ services:
       resources:
         limits:
           memory: 1000m
+    restart: unless-stopped
     # networks:
     #   - cassandra
   #    restart: always
