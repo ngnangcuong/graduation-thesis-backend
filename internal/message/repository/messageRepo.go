@@ -135,14 +135,14 @@ func (m *MessageRepo) GetConversationMessages(ctx context.Context, conversationI
 }
 
 func (m *MessageRepo) GetReadReceipt(ctx context.Context, conversationID, userID string) (*model.ReadReceipt, error) {
-	query := `SELECT conv_id, user_id, msg_id FROM read_receipt WHERE conv_id = ? AND user_ID = ?`
+	query := `SELECT conv_id, user_id, last_seen_msg FROM read_receipt WHERE conv_id = ? AND user_ID = ?`
 	var readReceipt model.ReadReceipt
 	err := m.session.Query(query, conversationID, userID).WithContext(ctx).Consistency(gocql.One).Scan(&readReceipt)
 	return &readReceipt, err
 }
 
 func (m *MessageRepo) GetReadReceipts(ctx context.Context, conversationID string) ([]*model.ReadReceipt, error) {
-	query := `SELECT conv_id, user_id, msg_id FROM read_receipt WHERE conv_id = ?`
+	query := `SELECT conv_id, user_id, last_seen_msg FROM read_receipt WHERE conv_id = ?`
 	scanner := m.session.Query(query, conversationID).WithContext(ctx).Iter().Scanner()
 
 	var readReceipts []*model.ReadReceipt

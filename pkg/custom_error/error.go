@@ -5,6 +5,70 @@ import (
 	"net/http"
 )
 
+type ErrorTimeout struct {
+	Description string
+}
+
+func (e *ErrorTimeout) Error() string {
+	return e.Description
+}
+
+type ErrorNotFound struct {
+	Description string
+}
+
+func (e *ErrorNotFound) Error() string {
+	return e.Description
+}
+
+type ErrorNoPermission struct {
+	Description string
+}
+
+func (e *ErrorNoPermission) Error() string {
+	return e.Description
+}
+
+type ErrorConnection struct {
+	Description string
+}
+
+func (e *ErrorConnection) Error() string {
+	return e.Description
+}
+
+type ErrorInvalidParameter struct {
+	Description string
+}
+
+func (e *ErrorInvalidParameter) Error() string {
+	return e.Description
+}
+
+type ErrorInternalServerError struct {
+	Description string
+}
+
+func (e *ErrorInternalServerError) Error() string {
+	return e.Description
+}
+
+type ErrorConflict struct {
+	Description string
+}
+
+func (e *ErrorConflict) Error() string {
+	return e.Description
+}
+
+type ErrorUnknown struct {
+	Description string
+}
+
+func (e *ErrorUnknown) Error() string {
+	return e.Description
+}
+
 var (
 	ErrTimeout             = errors.New("time out")
 	ErrNotFound            = errors.New("not found")
