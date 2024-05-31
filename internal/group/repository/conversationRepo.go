@@ -62,8 +62,7 @@ func (c *ConversationRepo) GetMembers(ctx context.Context, conversationID string
 		return &conversation, nil
 	}
 
-	query := `SELECT user_id FROM conversation c INNER JOIN conv_map_user cmu ON c.conv_id = cmu.conv_id
-				WHERE cmu.conv_id = $1`
+	query := `SELECT user_id FROM conv_map_user WHERE conv_id = $1`
 	rows, err := c.db.QueryContext(ctx, query, conversationID)
 	if err != nil {
 		return nil, custom_error.HandlePostgreError(err)
@@ -166,7 +165,12 @@ func (c *ConversationRepo) GetDirectedConversation(ctx context.Context, userID, 
 	if conversationID != "" {
 		return conversationID, nil
 	}
-	query := `SELECT conv_id FROM conv_map_user WHERE user_id IN($1, $2) GROUP BY conv_id HAVING COUNT(DISTINCT user_id) = 2`
+	query := `SELECT conv_id
+	FROM conv_map_user
+	GROUP BY conv_id
+	HAVING COUNT(*) = 2
+	   AND SUM(CASE WHEN user_id = $1 THEN 1 ELSE 0 END) = 1
+	   AND SUM(CASE WHEN user_id = $2 THEN 1 ELSE 0 END) = 1;`
 	row := c.db.QueryRowContext(ctx, query, userID, otherUser)
 	if err := row.Scan(&conversationID); err != nil {
 		return "", err
