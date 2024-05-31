@@ -107,11 +107,16 @@ func (u *UserService) CreateUser(ctx context.Context, createUserRequest model.Cr
 	var successResponse responseModel.SuccessResponse
 	var errorResponse responseModel.ErrorResponse
 
-	userEmail, eErr := u.userRepoPostgres.GetByEmail(ctx, createUserRequest.Email)
-	userByName, uErr := u.userRepoPostgres.GetByUsername(ctx, createUserRequest.Username)
-	if eErr != nil || uErr != nil {
+	userByName, eErr := u.userRepoPostgres.GetByEmail(ctx, createUserRequest.Email)
+	if eErr != nil && !errors.Is(eErr, sql.ErrNoRows) {
 		errorResponse.Status = http.StatusInternalServerError
-		errorResponse.ErrorMessage = model.ErrInternalServerError.Error()
+		errorResponse.ErrorMessage = eErr.Error()
+		return nil, &errorResponse
+	}
+	userEmail, uErr := u.userRepoPostgres.GetByUsername(ctx, createUserRequest.Username)
+	if uErr != nil && !errors.Is(uErr, sql.ErrNoRows) {
+		errorResponse.Status = http.StatusInternalServerError
+		errorResponse.ErrorMessage = uErr.Error()
 		return nil, &errorResponse
 	}
 	if userByName == nil && userEmail == nil {

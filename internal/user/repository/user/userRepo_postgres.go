@@ -46,7 +46,7 @@ func (u *UserRepoPostgres) Update(ctx context.Context, userId string, params mod
 }
 
 func (u *UserRepoPostgres) Get(ctx context.Context, userId string) (*model.User, error) {
-	query := `SELECT id, username, password, first_name, last_name, email, phone_number, created_at, last_updated, avatar WHERE id = $1`
+	query := `SELECT id, username, password, first_name, last_name, email, phone_number, created_at, last_updated, avatar FROM users WHERE id = $1`
 	row := u.db.QueryRowContext(ctx, query, userId)
 
 	var user model.User
@@ -55,7 +55,7 @@ func (u *UserRepoPostgres) Get(ctx context.Context, userId string) (*model.User,
 }
 
 func (u *UserRepoPostgres) GetForUpdate(ctx context.Context, userId string) (*model.User, error) {
-	query := `SELECT id, username, password, first_name, last_name, email, phone_number, created_at, last_updated, avatar WHERE id = $1 FOR UPDATE`
+	query := `SELECT id, username, password, first_name, last_name, email, phone_number, created_at, last_updated, avatar FROM users WHERE id = $1 FOR UPDATE`
 	row := u.db.QueryRowContext(ctx, query, userId)
 
 	var user model.User
@@ -64,7 +64,7 @@ func (u *UserRepoPostgres) GetForUpdate(ctx context.Context, userId string) (*mo
 }
 
 func (u *UserRepoPostgres) GetByUsername(ctx context.Context, username string) (*model.User, error) {
-	query := `SELECT id, username, password, first_name, last_name, email, phone_number, created_at, last_updated, avatar WHERE username = $1`
+	query := `SELECT id, username, password, first_name, last_name, email, phone_number, created_at, last_updated, avatar FROM users WHERE username = $1`
 	row := u.db.QueryRowContext(ctx, query, username)
 
 	var user model.User
@@ -73,7 +73,7 @@ func (u *UserRepoPostgres) GetByUsername(ctx context.Context, username string) (
 }
 
 func (u *UserRepoPostgres) GetByEmail(ctx context.Context, email string) (*model.User, error) {
-	query := `SELECT id, username, password, first_name, last_name, email, phone_number, created_at, last_updated, avatar WHERE email = $1`
+	query := `SELECT id, username, password, first_name, last_name, email, phone_number, created_at, last_updated, avatar FROM users WHERE email = $1`
 	row := u.db.QueryRowContext(ctx, query, email)
 
 	var user model.User
