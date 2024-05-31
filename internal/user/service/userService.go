@@ -109,8 +109,12 @@ func (u *UserService) CreateUser(ctx context.Context, createUserRequest model.Cr
 
 	userEmail, eErr := u.userRepoPostgres.GetByEmail(ctx, createUserRequest.Email)
 	userByName, uErr := u.userRepoPostgres.GetByUsername(ctx, createUserRequest.Username)
-	if (errors.Is(eErr, sql.ErrNoRows) && errors.Is(uErr, sql.ErrNoRows)) ||
-		(userByName == nil && userEmail == nil) {
+	if eErr != nil || uErr != nil {
+		errorResponse.Status = http.StatusInternalServerError
+		errorResponse.ErrorMessage = model.ErrInternalServerError.Error()
+		return nil, &errorResponse
+	}
+	if userByName == nil && userEmail == nil {
 		hashPassword, hashErr := argon2.HashPassword([]byte(createUserRequest.Password))
 		if hashErr != nil {
 			errorResponse.Status = http.StatusInternalServerError
