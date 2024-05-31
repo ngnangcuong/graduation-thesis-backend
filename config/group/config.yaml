@@ -1,7 +1,7 @@
 app:
   port: 8099
 
-postgre:
+postgres:
   url: "host=postgres port=5432 user=postgres password=Pa$$w0rd dbname=graduation_thesis sslmode=disable application_name=group_service"
 
 redis:

@@ -80,6 +80,11 @@ func (u *UserService) GetUser(ctx context.Context, id string) (*responseModel.Su
 		errorResponse.ErrorMessage = model.ErrInternalServerError.Error()
 		return nil, &errorResponse
 	}
+	if user == nil {
+		errorResponse.Status = http.StatusNotFound
+		errorResponse.ErrorMessage = model.ErrNoUser.Error()
+		return nil, &errorResponse
+	}
 
 	go u.userRepoRedis.Create(ctx, user)
 
@@ -102,9 +107,10 @@ func (u *UserService) CreateUser(ctx context.Context, createUserRequest model.Cr
 	var successResponse responseModel.SuccessResponse
 	var errorResponse responseModel.ErrorResponse
 
-	_, eErr := u.userRepoPostgres.GetByEmail(ctx, createUserRequest.Email)
-	_, uErr := u.userRepoPostgres.GetByUsername(ctx, createUserRequest.Username)
-	if errors.Is(eErr, sql.ErrNoRows) && errors.Is(uErr, sql.ErrNoRows) {
+	userEmail, eErr := u.userRepoPostgres.GetByEmail(ctx, createUserRequest.Email)
+	userByName, uErr := u.userRepoPostgres.GetByUsername(ctx, createUserRequest.Username)
+	if (errors.Is(eErr, sql.ErrNoRows) && errors.Is(uErr, sql.ErrNoRows)) ||
+		(userByName == nil && userEmail == nil) {
 		hashPassword, hashErr := argon2.HashPassword([]byte(createUserRequest.Password))
 		if hashErr != nil {
 			errorResponse.Status = http.StatusInternalServerError
@@ -153,6 +159,12 @@ func (u *UserService) UpdateUser(ctx context.Context, id string, updateUserReque
 			errorResponse.ErrorMessage = model.ErrInternalServerError.Error()
 		}
 
+		return nil, &errorResponse
+	}
+
+	if user == nil {
+		errorResponse.Status = http.StatusNotFound
+		errorResponse.ErrorMessage = model.ErrNoUser.Error()
 		return nil, &errorResponse
 	}
 
