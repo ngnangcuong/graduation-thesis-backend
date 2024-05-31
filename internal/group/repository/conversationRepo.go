@@ -87,7 +87,7 @@ func (c *ConversationRepo) GetMembers(ctx context.Context, conversationID string
 }
 
 func (c *ConversationRepo) Create(ctx context.Context, conversationID string) error {
-	query := `INSERT INTO conversations (id,) VALUES ($1)`
+	query := `INSERT INTO conversations (id) VALUES ($1)`
 	_, err := c.db.ExecContext(ctx, query, conversationID)
 	if err != nil {
 		return custom_error.HandlePostgreError(err)
