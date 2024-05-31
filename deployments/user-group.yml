@@ -15,7 +15,7 @@ services:
   group_service:
     image: group_service:1.0
     ports: 
-      - "809:8099"
+      - "8099:8099"
     deploy:
       resources:
         limits:
