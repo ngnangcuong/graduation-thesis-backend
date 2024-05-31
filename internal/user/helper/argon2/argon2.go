@@ -37,7 +37,7 @@ func HashPassword(password []byte) (string, error) {
 	b64Hash := base64.StdEncoding.EncodeToString(hash)
 	b64Salt := base64.StdEncoding.EncodeToString(salt)
 
-	return fmt.Sprintf("$%s$v=%d$m=%d, t=%d, p=%d$%s%s", algo, argon2.Version, memory, time, threads, b64Salt, b64Hash), nil
+	return fmt.Sprintf("$%s$v=%d$m=%d, t=%d, p=%d$%s$%s", algo, argon2.Version, memory, time, threads, b64Salt, b64Hash), nil
 }
 
 func HashPasswordSettings(password []byte, salt []byte, algo string, time, memory uint32, threads uint8, keyLength uint32) string {
