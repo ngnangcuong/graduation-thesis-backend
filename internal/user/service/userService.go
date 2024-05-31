@@ -77,7 +77,7 @@ func (u *UserService) GetUser(ctx context.Context, id string) (*responseModel.Su
 			return nil, &errorResponse
 		}
 		errorResponse.Status = http.StatusInternalServerError
-		errorResponse.ErrorMessage = model.ErrInternalServerError.Error()
+		errorResponse.ErrorMessage = err.Error()
 		return nil, &errorResponse
 	}
 	if user == nil {
@@ -123,7 +123,7 @@ func (u *UserService) CreateUser(ctx context.Context, createUserRequest model.Cr
 		hashPassword, hashErr := argon2.HashPassword([]byte(createUserRequest.Password))
 		if hashErr != nil {
 			errorResponse.Status = http.StatusInternalServerError
-			errorResponse.ErrorMessage = model.ErrInternalServerError.Error()
+			errorResponse.ErrorMessage = hashErr.Error()
 			return nil, &errorResponse
 		}
 		createUserParams := model.CreateUserParams{
@@ -139,7 +139,7 @@ func (u *UserService) CreateUser(ctx context.Context, createUserRequest model.Cr
 		newUser, createErr := u.userRepoPostgres.Create(ctx, &createUserParams)
 		if createErr != nil {
 			errorResponse.Status = http.StatusInternalServerError
-			errorResponse.ErrorMessage = model.ErrInternalServerError.Error()
+			errorResponse.ErrorMessage = createErr.Error()
 			return nil, &errorResponse
 		}
 
@@ -165,7 +165,7 @@ func (u *UserService) UpdateUser(ctx context.Context, id string, updateUserReque
 			errorResponse.ErrorMessage = model.ErrNoUser.Error()
 		} else {
 			errorResponse.Status = http.StatusInternalServerError
-			errorResponse.ErrorMessage = model.ErrInternalServerError.Error()
+			errorResponse.ErrorMessage = err.Error()
 		}
 
 		return nil, &errorResponse
@@ -184,7 +184,7 @@ func (u *UserService) UpdateUser(ctx context.Context, id string, updateUserReque
 		newHashPassword, hashErr := argon2.HashPassword([]byte(updateUserRequest.Password))
 		if hashErr != nil {
 			errorResponse.Status = http.StatusInternalServerError
-			errorResponse.ErrorMessage = model.ErrInternalServerError.Error()
+			errorResponse.ErrorMessage = hashErr.Error()
 			return nil, &errorResponse
 		}
 
@@ -210,7 +210,7 @@ func (u *UserService) UpdateUser(ctx context.Context, id string, updateUserReque
 	uErr := u.userRepoPostgres.Update(ctx, id, updateUserParams)
 	if uErr != nil {
 		errorResponse.Status = http.StatusInternalServerError
-		errorResponse.ErrorMessage = model.ErrInternalServerError.Error()
+		errorResponse.ErrorMessage = uErr.Error()
 		return nil, &errorResponse
 	}
 
