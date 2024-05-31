@@ -1,5 +1,5 @@
 postgres:
-  url: "host=localhost port=5432 user=? password=? dbname=user sslmode=disable application_name=user"
+  url: "host=postgres port=5432 user=postgres password=Pa$$w0rd dbname=graduation_thesis sslmode=disable application_name=user_service"
 
 redis:
   url: redis://localhost:6379/0
