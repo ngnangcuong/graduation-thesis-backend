@@ -26,7 +26,7 @@ func (u *UserRepoPostgres) WithTx(tx *sql.Tx) *UserRepoPostgres {
 
 func (u *UserRepoPostgres) Create(ctx context.Context, params *model.CreateUserParams) (*model.User, error) {
 	query := `INSERT INTO users (id, username, password, first_name, last_name, email, phone_number, created_at, last_updated, avatar)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id, username, password, first_name, last_name, email, phone_number, created_at, last_updated, avatar`
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id, username, password, first_name, last_name, email, phone_number, created_at, last_updated, avatar`
 	row := u.db.QueryRowContext(ctx, query, params.ID, params.Username, params.HashPassword, params.FirstName, params.LastName, params.Email, params.PhoneNumber, time.Now(), time.Now(), params.Avatar)
 
 	var result model.User
