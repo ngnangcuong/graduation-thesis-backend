@@ -19,7 +19,7 @@ func InitRouter(authHandler *AuthHandler, userHandler *UserHandler) {
 
 	authPath := router.Group("/v1/auth")
 	{
-		authPath.GET("/login", authHandler.Login)
+		authPath.POST("/login", authHandler.Login)
 		authPath.POST("/refresh", authHandler.Refresh)
 		authPath.GET("/logout", authHandler.AuthMiddleware(), authHandler.Logout)
 	}

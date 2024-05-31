@@ -52,7 +52,7 @@ func HashPasswordSettings(password []byte, salt []byte, algo string, time, memor
 	b64Hash := base64.StdEncoding.EncodeToString(hash)
 	b64Salt := base64.StdEncoding.EncodeToString(salt)
 
-	return fmt.Sprintf("$%s$v=%d$m=%d, t=%d, p=%d$%s%s", algo, argon2.Version, memory, time, threads, b64Salt, b64Hash)
+	return fmt.Sprintf("$%s$v=%d$m=%d, t=%d, p=%d$%s$%s", algo, argon2.Version, memory, time, threads, b64Salt, b64Hash)
 }
 
 func generateSalt() ([]byte, error) {
