@@ -52,9 +52,29 @@ func (con *ConversationHandler) CreateConversation(c *gin.Context) {
 }
 
 func (con *ConversationHandler) GetConversationsContainUser(c *gin.Context) {
-	// userID := c.Param("user_id")
-	userID := c.Request.Header.Get("X-User-ID")
+	userID := c.Param("user_id")
+	if userID != c.Request.Header.Get("X-User-ID") {
+		errorResponse := responseModel.ErrorResponse{
+			Status:       http.StatusUnauthorized,
+			ErrorMessage: "no permission",
+		}
+		c.JSON(errorResponse.Status, errorResponse)
+		return
+	}
 	successResponse, errorResponse := con.conversationService.GetConversationsContainUser(c, userID)
+	if errorResponse != nil {
+		c.JSON(errorResponse.Status, errorResponse)
+		return
+	}
+
+	c.JSON(successResponse.Status, successResponse)
+}
+
+func (con *ConversationHandler) GetDirectedConversation(c *gin.Context) {
+	otherUser := c.Query("with")
+	userID := c.Request.Header.Get("X-User-ID")
+
+	successResponse, errorResponse := con.conversationService.GetDirectedConversation(c, userID, otherUser)
 	if errorResponse != nil {
 		c.JSON(errorResponse.Status, errorResponse)
 		return

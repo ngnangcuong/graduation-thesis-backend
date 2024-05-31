@@ -44,16 +44,15 @@ func (a *AuthHandler) Refresh(c *gin.Context) {
 }
 
 func (a *AuthHandler) Validate(c *gin.Context) {
-	// token := a.tokenService.ExtractTokenFromRequest(c.Request)
-	// successResponse, errorResponse := a.tokenService.ValidateToken(token)
-	// if errorResponse != nil {
-	// 	c.JSON(errorResponse.Status, errorResponse)
-	// 	return
-	// }
+	token := a.tokenService.ExtractTokenFromRequest(c.Request)
+	successResponse, errorResponse := a.tokenService.ValidateToken(token)
+	if errorResponse != nil {
+		c.JSON(errorResponse.Status, errorResponse)
+		return
+	}
 
-	// c.JSON(successResponse.Status, successResponse)
 	c.JSON(200, gin.H{
-		"user_id": 1,
+		"user_id": successResponse.Result,
 	})
 }
 

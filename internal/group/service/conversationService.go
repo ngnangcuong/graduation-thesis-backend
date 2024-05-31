@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"graduation-thesis/internal/group/model"
 	"graduation-thesis/internal/group/repository"
 	"graduation-thesis/pkg/custom_error"
@@ -119,6 +120,31 @@ func (c *ConversationService) GetConversationsContainUser(ctx context.Context, u
 	successResponse := responseModel.SuccessResponse{
 		Status: http.StatusOK,
 		Result: conversations,
+	}
+	return &successResponse, nil
+}
+
+func (c *ConversationService) GetDirectedConversation(ctx context.Context, userID, otherUser string) (*responseModel.SuccessResponse, *responseModel.ErrorResponse) {
+	conversation, err := c.conversationRepo.GetDirectedConversation(ctx, userID, otherUser)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			errorResponse := responseModel.ErrorResponse{
+				Status:       http.StatusNotFound,
+				ErrorMessage: err.Error(),
+			}
+			return nil, &errorResponse
+		}
+
+		errorResponse := responseModel.ErrorResponse{
+			Status:       http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		}
+		return nil, &errorResponse
+	}
+
+	successResponse := responseModel.SuccessResponse{
+		Status: http.StatusOK,
+		Result: conversation,
 	}
 	return &successResponse, nil
 }

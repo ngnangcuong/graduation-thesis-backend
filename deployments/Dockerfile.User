@@ -15,8 +15,8 @@ COPY ./internal/user ./internal/user
 COPY ./pkg ./pkg
 COPY ./config/user/config.yaml ./config/user
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /user cmd/user/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o main cmd/user/main.go
 
-EXPOSE 8080
+# EXPOSE 8080
 
-CMD ["/user"]
+CMD ["/main"]

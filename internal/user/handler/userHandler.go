@@ -52,7 +52,7 @@ func (u *UserHandler) Register(c *gin.Context) {
 
 func (u *UserHandler) UpdateUser(c *gin.Context) {
 	id := c.Param("id")
-	if user_id := c.MustGet("user_id"); id != user_id {
+	if userID := c.Request.Header.Get("X-User-ID"); id != userID {
 		errorResponse := responseModel.ErrorResponse{
 			Status:       http.StatusUnauthorized,
 			ErrorMessage: model.ErrNoPermission.Error(),

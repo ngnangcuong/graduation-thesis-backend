@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"graduation-thesis/internal/group/model"
 	"graduation-thesis/pkg/custom_error"
 	"graduation-thesis/pkg/interfaces"
@@ -157,4 +158,23 @@ func (c *ConversationRepo) GetConversations(ctx context.Context, userID string) 
 	}
 
 	return conversations, nil
+}
+
+func (c *ConversationRepo) GetDirectedConversation(ctx context.Context, userID, otherUser string) (string, error) {
+	var conversationID string
+	_ = c.getFromRedis(ctx, fmt.Sprintf("%s+%s", userID, otherUser), conversationID)
+	if conversationID != "" {
+		return conversationID, nil
+	}
+	query := `SELECT conv_id FROM conv_map_user WHERE user_id IN($1, $2) GROUP BY conv_id HAVING COUNT(DISTINCT user_id) = 2`
+	row := c.db.QueryRowContext(ctx, query, userID, otherUser)
+	if err := row.Scan(&conversationID); err != nil {
+		return "", err
+	}
+
+	if row.Err() != nil {
+		return "", row.Err()
+	}
+	go c.setIntoRedis(ctx, fmt.Sprintf("%s+%s", userID, otherUser), conversationID)
+	return conversationID, nil
 }

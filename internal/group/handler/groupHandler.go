@@ -22,8 +22,8 @@ func NewGroupHandler(groupService *service.GroupService) *GroupHandler {
 func (g *GroupHandler) GetGroup(c *gin.Context) {
 	// userID := c.MustGet("user_id").(string)
 	userID := c.Request.Header.Get("X-User-ID")
-	groupID := c.Param("group_id")
-	groupName := c.Param("group_name")
+	groupID := c.Query("group_id")
+	groupName := c.Query("group_name")
 
 	successResponse, errorResponse := g.groupService.GetGroup(c, userID, groupID, groupName)
 	if errorResponse != nil {

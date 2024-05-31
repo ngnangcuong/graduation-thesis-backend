@@ -177,6 +177,10 @@ func (g *GroupService) UpdateGroup(ctx context.Context, request *model.UpdateGro
 			return gErr
 		}
 
+		if !g.isInGroup(userID, group.Admins) {
+			return custom_error.ErrNoPermission
+		}
+
 		updateGroupParams := model.UpdateGroupParams{
 			ID:          groupID,
 			LastUpdated: time.Now(),
@@ -196,10 +200,6 @@ func (g *GroupService) UpdateGroup(ctx context.Context, request *model.UpdateGro
 					}
 				}
 				if r.Action == "remove" {
-					if !g.isInGroup(userID, group.Admins) {
-						return custom_error.ErrNoPermission
-					}
-
 					if err := cr.RemoveMembers(queryContext, group.ConversationID, r.Users); err != nil {
 						return err
 					}
@@ -207,17 +207,7 @@ func (g *GroupService) UpdateGroup(ctx context.Context, request *model.UpdateGro
 			}
 		}
 
-		if len(request.Admins) > 0 {
-			if !g.isInGroup(userID, group.Admins) {
-				return custom_error.ErrNoPermission
-			}
-
-			newAdminUsers := g.createNewUserList(group.Admins, request.Admins)
-			updateGroupParams.Admins = newAdminUsers
-		} else {
-			updateGroupParams.Admins = group.Admins
-		}
-
+		updateGroupParams.Admins = group.Admins
 		if _, err := g.groupRepo.Update(queryContext, updateGroupParams); err != nil {
 			return err
 		}
