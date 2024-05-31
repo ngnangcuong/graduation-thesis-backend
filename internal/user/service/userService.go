@@ -107,19 +107,19 @@ func (u *UserService) CreateUser(ctx context.Context, createUserRequest model.Cr
 	var successResponse responseModel.SuccessResponse
 	var errorResponse responseModel.ErrorResponse
 
-	userByName, eErr := u.userRepoPostgres.GetByEmail(ctx, createUserRequest.Email)
+	_, eErr := u.userRepoPostgres.GetByEmail(ctx, createUserRequest.Email)
 	if eErr != nil && !errors.Is(eErr, sql.ErrNoRows) {
 		errorResponse.Status = http.StatusInternalServerError
 		errorResponse.ErrorMessage = eErr.Error()
 		return nil, &errorResponse
 	}
-	userEmail, uErr := u.userRepoPostgres.GetByUsername(ctx, createUserRequest.Username)
+	_, uErr := u.userRepoPostgres.GetByUsername(ctx, createUserRequest.Username)
 	if uErr != nil && !errors.Is(uErr, sql.ErrNoRows) {
 		errorResponse.Status = http.StatusInternalServerError
 		errorResponse.ErrorMessage = uErr.Error()
 		return nil, &errorResponse
 	}
-	if userByName == nil && userEmail == nil {
+	if errors.Is(eErr, sql.ErrNoRows) && errors.Is(uErr, sql.ErrNoRows) {
 		hashPassword, hashErr := argon2.HashPassword([]byte(createUserRequest.Password))
 		if hashErr != nil {
 			errorResponse.Status = http.StatusInternalServerError
