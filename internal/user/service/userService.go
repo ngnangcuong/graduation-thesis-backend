@@ -159,6 +159,41 @@ func (u *UserService) GetUserByUsername(ctx context.Context, username string) (*
 	return &successResponse, nil
 }
 
+func (u *UserService) GetAllUser(ctx context.Context, contain string, limit, offset int) (*responseModel.SuccessResponse, *responseModel.ErrorResponse) {
+	if limit > 100 {
+		limit = 100
+	}
+	users, err := u.userRepoPostgres.GetAll(ctx, contain, limit, offset)
+	if err != nil {
+		errorResponse := responseModel.ErrorResponse{
+			Status:       u.mapError[err],
+			ErrorMessage: err.Error(),
+		}
+		return nil, &errorResponse
+	}
+	var results []model.GetUserResponse
+	for _, user := range users {
+		result := model.GetUserResponse{
+			ID:          user.ID,
+			Username:    user.Username,
+			FirstName:   user.FirstName,
+			LastName:    user.LastName,
+			Email:       user.Email,
+			PhoneNumber: user.PhoneNumber,
+			Avatar:      user.Avatar,
+			CreatedAt:   user.CreatedAt,
+			LastUpdated: user.LastUpdated,
+		}
+		results = append(results, result)
+	}
+
+	successResponse := responseModel.SuccessResponse{
+		Status: http.StatusOK,
+		Result: results,
+	}
+	return &successResponse, nil
+}
+
 func (u *UserService) CreateUser(ctx context.Context, createUserRequest model.CreateUserRequest) (*responseModel.SuccessResponse, *responseModel.ErrorResponse) {
 	var successResponse responseModel.SuccessResponse
 	var errorResponse responseModel.ErrorResponse

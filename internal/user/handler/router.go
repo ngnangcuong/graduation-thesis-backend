@@ -29,6 +29,7 @@ func InitRouter(authHandler *AuthHandler, userHandler *UserHandler) {
 		userPath.POST("/verify", userHandler.Verify)
 		userPath.GET("/:id", userHandler.GetUser)
 		userPath.GET("/", userHandler.GetUserByUsername)
+		userPath.GET("/all", userHandler.GetAllUser)
 		userPath.POST("/", userHandler.Register)
 		userPath.PUT("/:id", userHandler.UpdateUser)
 	}

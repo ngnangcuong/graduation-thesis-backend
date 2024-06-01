@@ -5,6 +5,7 @@ import (
 	"graduation-thesis/internal/user/service"
 	responseModel "graduation-thesis/pkg/model"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,6 +23,29 @@ func NewUserHandler(userService *service.UserService) *UserHandler {
 func (u *UserHandler) GetUser(c *gin.Context) {
 	id := c.Param("id")
 	successResponse, errorResponse := u.userService.GetUser(c, id)
+	if errorResponse != nil {
+		c.JSON(errorResponse.Status, errorResponse)
+		return
+	}
+
+	c.JSON(successResponse.Status, successResponse)
+}
+
+func (u *UserHandler) GetAllUser(c *gin.Context) {
+	contain := c.Query("contain")
+	limitQuery := c.DefaultQuery("limit", "25")
+	offsetQuery := c.DefaultQuery("offset", "0")
+	limit, lErr := strconv.Atoi(limitQuery)
+	offset, oErr := strconv.Atoi(offsetQuery)
+	if lErr != nil || oErr != nil {
+		errorResponse := responseModel.ErrorResponse{
+			Status:       http.StatusBadRequest,
+			ErrorMessage: "invalid parameters",
+		}
+		c.JSON(errorResponse.Status, errorResponse)
+		return
+	}
+	successResponse, errorResponse := u.userService.GetAllUser(c, contain, limit, offset)
 	if errorResponse != nil {
 		c.JSON(errorResponse.Status, errorResponse)
 		return
