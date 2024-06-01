@@ -82,6 +82,19 @@ func (g *GroupHandler) UpdateGroup(c *gin.Context) {
 	c.JSON(successResponse.Status, successResponse)
 }
 
+func (g *GroupHandler) LeaveGroup(c *gin.Context) {
+	userID := c.Request.Header.Get("X-User-ID")
+	groupID := c.Param("group_id")
+
+	successResponse, errorResponse := g.groupService.LeaveGroup(c, groupID, userID)
+	if errorResponse != nil {
+		c.JSON(errorResponse.Status, errorResponse)
+		return
+	}
+
+	c.JSON(successResponse.Status, successResponse)
+}
+
 func (g *GroupHandler) DeleteGroup(c *gin.Context) {
 	groupID := c.Param("group_id")
 	userID := c.Request.Header.Get("X-User-ID")

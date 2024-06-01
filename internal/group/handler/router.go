@@ -17,6 +17,7 @@ func NewRouter(groupHandler *GroupHandler, conversationHandler *ConversationHand
 	{
 		groupPath.GET("/", groupHandler.GetGroup)
 		groupPath.PUT("/:group_id", groupHandler.UpdateGroup)
+		groupPath.PUT("/:group_id/leave", groupHandler.LeaveGroup)
 		groupPath.POST("/", groupHandler.CreateGroup)
 		groupPath.DELETE("/:group_id", groupHandler.DeleteGroup)
 	}

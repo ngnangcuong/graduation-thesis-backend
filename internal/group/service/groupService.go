@@ -231,6 +231,30 @@ func (g *GroupService) UpdateGroup(ctx context.Context, request *model.UpdateGro
 	return &successResponse, nil
 }
 
+func (g *GroupService) LeaveGroup(ctx context.Context, groupID, userID string) (*responseModel.SuccessResponse, *responseModel.ErrorResponse) {
+	group, gErr := g.groupRepo.Get(ctx, groupID)
+	if gErr != nil {
+		errorResponse := responseModel.ErrorResponse{
+			Status:       g.errorMap[gErr],
+			ErrorMessage: gErr.Error(),
+		}
+		return nil, &errorResponse
+	}
+
+	if err := g.conversationRepo.RemoveMembers(ctx, group.ConversationID, []string{userID}); err != nil {
+		errorResponse := responseModel.ErrorResponse{
+			Status:       g.errorMap[err],
+			ErrorMessage: err.Error(),
+		}
+		return nil, &errorResponse
+	}
+
+	successResponse := responseModel.SuccessResponse{
+		Status: http.StatusNoContent,
+	}
+	return &successResponse, nil
+}
+
 func (g *GroupService) DeleteGroup(ctx context.Context, groupID, userID string) (*responseModel.SuccessResponse, *responseModel.ErrorResponse) {
 	queryContext, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
