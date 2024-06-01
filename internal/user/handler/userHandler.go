@@ -30,6 +30,17 @@ func (u *UserHandler) GetUser(c *gin.Context) {
 	c.JSON(successResponse.Status, successResponse)
 }
 
+func (u *UserHandler) GetUserByUsername(c *gin.Context) {
+	username := c.Query("username")
+	successResponse, errorResponse := u.userService.GetUserByUsername(c, username)
+	if errorResponse != nil {
+		c.JSON(errorResponse.Status, errorResponse)
+		return
+	}
+
+	c.JSON(successResponse.Status, successResponse)
+}
+
 func (u *UserHandler) Register(c *gin.Context) {
 	var createUserRequest model.CreateUserRequest
 	if err := c.ShouldBindJSON(&createUserRequest); err != nil {

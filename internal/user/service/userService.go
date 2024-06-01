@@ -58,6 +58,7 @@ func (u *UserService) GetUser(ctx context.Context, id string) (*responseModel.Su
 		successResponse.Status = http.StatusOK
 		successResponse.Result = model.GetUserResponse{
 			ID:          userCache.ID,
+			Username:    userCache.Username,
 			FirstName:   userCache.FirstName,
 			LastName:    userCache.LastName,
 			Email:       userCache.Email,
@@ -90,6 +91,61 @@ func (u *UserService) GetUser(ctx context.Context, id string) (*responseModel.Su
 
 	successResponse.Result = model.GetUserResponse{
 		ID:          user.ID,
+		Username:    user.Username,
+		FirstName:   user.FirstName,
+		LastName:    user.LastName,
+		Email:       user.Email,
+		PhoneNumber: user.PhoneNumber,
+		Avatar:      user.Avatar,
+		CreatedAt:   user.CreatedAt,
+		LastUpdated: user.LastUpdated,
+	}
+	successResponse.Status = http.StatusOK
+
+	return &successResponse, nil
+}
+
+func (u *UserService) GetUserByUsername(ctx context.Context, username string) (*responseModel.SuccessResponse, *responseModel.ErrorResponse) {
+	var successResponse responseModel.SuccessResponse
+	var errorResponse responseModel.ErrorResponse
+
+	userCache, err := u.userRepoRedis.Get(ctx, username)
+	if err == nil {
+		successResponse.Status = http.StatusOK
+		successResponse.Result = model.GetUserResponse{
+			ID:          userCache.ID,
+			Username:    userCache.Username,
+			FirstName:   userCache.FirstName,
+			LastName:    userCache.LastName,
+			Email:       userCache.Email,
+			PhoneNumber: userCache.PhoneNumber,
+			Avatar:      userCache.Avatar,
+			CreatedAt:   userCache.CreatedAt,
+			LastUpdated: userCache.LastUpdated,
+		}
+		return &successResponse, nil
+	}
+
+	user, err := u.userRepoPostgres.GetByUsername(ctx, username)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			errorResponse.Status = http.StatusNotFound
+			errorResponse.ErrorMessage = model.ErrNoUser.Error()
+			return nil, &errorResponse
+		}
+		errorResponse.Status = http.StatusInternalServerError
+		errorResponse.ErrorMessage = err.Error()
+		return nil, &errorResponse
+	}
+	if user == nil {
+		errorResponse.Status = http.StatusNotFound
+		errorResponse.ErrorMessage = model.ErrNoUser.Error()
+		return nil, &errorResponse
+	}
+
+	successResponse.Result = model.GetUserResponse{
+		ID:          user.ID,
+		Username:    user.Username,
 		FirstName:   user.FirstName,
 		LastName:    user.LastName,
 		Email:       user.Email,
