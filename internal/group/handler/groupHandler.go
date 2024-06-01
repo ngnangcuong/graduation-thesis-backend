@@ -24,8 +24,9 @@ func (g *GroupHandler) GetGroup(c *gin.Context) {
 	userID := c.Request.Header.Get("X-User-ID")
 	groupID := c.Query("group_id")
 	groupName := c.Query("group_name")
+	conversationID := c.Query("conv_id")
 
-	successResponse, errorResponse := g.groupService.GetGroup(c, userID, groupID, groupName)
+	successResponse, errorResponse := g.groupService.GetGroup(c, userID, groupID, groupName, conversationID)
 	if errorResponse != nil {
 		c.JSON(errorResponse.Status, errorResponse)
 		return

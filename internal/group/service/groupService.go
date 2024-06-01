@@ -55,7 +55,7 @@ func (g *GroupService) isInGroup(userID string, usersInGroup []string) bool {
 	return false
 }
 
-func (g *GroupService) GetGroup(ctx context.Context, userID, groupID, groupName string) (*responseModel.SuccessResponse, *responseModel.ErrorResponse) {
+func (g *GroupService) GetGroup(ctx context.Context, userID, groupID, groupName, conversationID string) (*responseModel.SuccessResponse, *responseModel.ErrorResponse) {
 	if groupName != "" && groupID != "" {
 		errorResponse := responseModel.ErrorResponse{
 			Status:       g.errorMap[custom_error.ErrInvalidParameter],
@@ -73,8 +73,10 @@ func (g *GroupService) GetGroup(ctx context.Context, userID, groupID, groupName 
 	defer cancel()
 	if groupName != "" {
 		group, err = g.groupRepo.GetByName(queryContext, groupName)
-	} else {
+	} else if groupID != "" {
 		group, err = g.groupRepo.Get(queryContext, groupID)
+	} else if conversationID != "" {
+		group, err = g.groupRepo.GetByConversationID(queryContext, conversationID)
 	}
 
 	if err != nil {

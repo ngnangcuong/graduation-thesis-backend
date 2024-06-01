@@ -86,6 +86,19 @@ func (g *GroupRepo) GetByName(ctx context.Context, groupName string) (*model.Gro
 	return &group, nil
 }
 
+func (g *GroupRepo) GetByConversationID(ctx context.Context, conversationID string) (*model.Group, error) {
+	query := `SELECT id, group_name, created_at, last_updated, conv_id, admins FROM groups WHERE conv_id = $1 AND deleted = false LIMIT 1`
+	row := g.db.QueryRowContext(ctx, query, conversationID)
+
+	var group model.Group
+	err := row.Scan(&group.ID, &group.GroupName, &group.CreatedAt, &group.LastUpdated, &group.ConversationID, (*pq.StringArray)(&group.Admins))
+	if err != nil {
+		return nil, custom_error.HandlePostgreError(err)
+	}
+
+	return &group, nil
+}
+
 func (g *GroupRepo) Create(ctx context.Context, group model.Group) error {
 	query := `INSERT INTO groups (id, group_name, created_at, last_updated, conv_id, deleted, admins) VALUES ($1, $2, $3, $4, $5, $6, $7)`
 	_, err := g.db.ExecContext(ctx, query, group.ID, group.GroupName, group.CreatedAt, group.LastUpdated,
