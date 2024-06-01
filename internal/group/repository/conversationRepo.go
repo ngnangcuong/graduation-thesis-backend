@@ -135,17 +135,19 @@ func (c *ConversationRepo) Update(ctx context.Context, params model.UpdateConver
 	return custom_error.HandlePostgreError(err)
 }
 
-func (c *ConversationRepo) GetConversations(ctx context.Context, userID string) ([]string, error) {
-	query := `SELECT conv_id FROM conv_map_user WHERE user_id = $1`
+func (c *ConversationRepo) GetConversations(ctx context.Context, userID string) ([]model.GetConversationsContainUserResponse, error) {
+	query := `SELECT conv_id, count(user_id) FROM conv_map_user 
+		WHERE conv_id IN(SELECT conv_id FROM conv_map_user WHERE user_id = $1)
+		GROUP BY conv_id`
 	rows, err := c.db.QueryContext(ctx, query, userID)
 	if err != nil {
 		return nil, custom_error.HandlePostgreError(err)
 	}
 
-	var conversations []string
+	var conversations []model.GetConversationsContainUserResponse
 	for rows.Next() {
-		var conversation string
-		if err := rows.Scan(&conversation); err != nil {
+		var conversation model.GetConversationsContainUserResponse
+		if err := rows.Scan(&conversation.ConversationID, &conversation.MemberCount); err != nil {
 			return nil, custom_error.HandlePostgreError(err)
 		}
 

@@ -55,3 +55,8 @@ type UpdateConversationParams struct {
 type CreateConversationRequest struct {
 	Members []string `json:"members" binding:"required,gte=2"`
 }
+
+type GetConversationsContainUserResponse struct {
+	ConversationID string `json:"conv_id"`
+	MemberCount    int    `json:"member_count"`
+}
