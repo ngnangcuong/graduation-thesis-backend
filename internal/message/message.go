@@ -40,7 +40,7 @@ func Run() {
 	}
 
 	messageRepo := repository.NewMessageRepo(session, kafkaProducer, viper.GetString("kafka.topic"))
-	messageService := service.NewMessageService(messageRepo, logger)
+	messageService := service.NewMessageService(messageRepo, viper.GetString("group_service_url"), logger)
 	messageHandler := handler.NewMessageHandler(messageService)
 
 	router := handler.GetRouter(messageHandler)

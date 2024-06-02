@@ -3,13 +3,15 @@ cassandra:
   keyspace: graduation_thesis
 
 kafka:
-  bootstrap_server: kafka:9092
+  bootstrap_servers: kafka:9092
   message_max_bytes: 10000000
   topic: messages
 
 logger:
   level: debug
   path: ./log/message/info.log
+
+group_service_url: http://group_service:8099/v1
 
 app:
   port: 8090

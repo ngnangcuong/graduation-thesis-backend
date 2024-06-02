@@ -17,14 +17,15 @@ const MAXRETRY = 5
 
 type MessageService struct {
 	messageRepo     *repository.MessageRepo
-	logger          logger.Logger
 	groupServiceUrl string
+	logger          logger.Logger
 }
 
-func NewMessageService(messageRepo *repository.MessageRepo, logger logger.Logger) *MessageService {
+func NewMessageService(messageRepo *repository.MessageRepo, groupServiceUrl string, logger logger.Logger) *MessageService {
 	return &MessageService{
-		messageRepo: messageRepo,
-		logger:      logger,
+		messageRepo:     messageRepo,
+		groupServiceUrl: groupServiceUrl,
+		logger:          logger,
 	}
 }
 
@@ -129,7 +130,7 @@ func (m *MessageService) getConversationMembers(ctx context.Context, userID, con
 	)
 	for i := 1; i <= 5; i++ {
 		result, err = request.HTTPRequestCall(
-			fmt.Sprintf("%s/v1/conversation/%s", m.groupServiceUrl, conversationID),
+			fmt.Sprintf("%s/conversation/%s", m.groupServiceUrl, conversationID),
 			http.MethodGet,
 			userID,
 			nil,
