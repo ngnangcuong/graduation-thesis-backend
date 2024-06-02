@@ -15,17 +15,17 @@ func NewRouter(groupHandler *GroupHandler, conversationHandler *ConversationHand
 
 	groupPath := r.Group("/v1/group")
 	{
-		groupPath.GET("/", groupHandler.GetGroup)
+		groupPath.GET("", groupHandler.GetGroup)
 		groupPath.PUT("/:group_id", groupHandler.UpdateGroup)
 		groupPath.PUT("/:group_id/leave", groupHandler.LeaveGroup)
-		groupPath.POST("/", groupHandler.CreateGroup)
+		groupPath.POST("", groupHandler.CreateGroup)
 		groupPath.DELETE("/:group_id", groupHandler.DeleteGroup)
 	}
 
 	conversationPath := r.Group("/v1/conversation")
 	{
 		conversationPath.GET("/:conversation_id", conversationHandler.GetConversation)
-		conversationPath.POST("/", conversationHandler.CreateConversation)
+		conversationPath.POST("", conversationHandler.CreateConversation)
 		conversationPath.GET("/user/:user_id", conversationHandler.GetConversationsContainUser)
 		conversationPath.GET("/user", conversationHandler.GetDirectedConversation)
 	}
