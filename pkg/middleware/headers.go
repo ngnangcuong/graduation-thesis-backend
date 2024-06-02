@@ -7,7 +7,7 @@ func Headers() gin.HandlerFunc {
 		c.Header("Content-Security-Policy", "default-src 'self'")
 		c.Header("Content-Security-Policy", "require-sri-for style script")
 		c.Header("X-XSS-Protection", "1; mode=block")
-		c.Header("Access-Control-Allow-Method", "POST, GET")
+		c.Header("Access-Control-Allow-Methods", "POST, GET")
 		c.Header("X-Content-Type-Options", "nosniff")
 		c.Header("X-Frame-Options", "SAMEORIGIN")
 		c.Header("Strict-Transport-Security", "max-age=315360000, includeSubdomains; preload")
