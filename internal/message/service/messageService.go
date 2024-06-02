@@ -150,7 +150,7 @@ func (m *MessageService) getConversationMembers(ctx context.Context, userID, con
 		Members []string
 	}
 
-	members := result.(conversation).Members
+	members := result.(map[string]interface{})["members"].([]string)
 	return members, nil
 }
 
