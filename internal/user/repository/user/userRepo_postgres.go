@@ -3,7 +3,6 @@ package user
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"graduation-thesis/internal/user/model"
 	"graduation-thesis/pkg/interfaces"
 	"time"
@@ -84,8 +83,8 @@ func (u *UserRepoPostgres) GetByEmail(ctx context.Context, email string) (*model
 
 func (u *UserRepoPostgres) GetAll(ctx context.Context, contain string, limit, offset int) ([]*model.User, error) {
 	query := `SELECT id, username, password, first_name, last_name, email, phone_number, created_at, last_updated, avatar
-			FROM users WHERE username LIKE $1 LIMIT $2 OFFSET $3`
-	rows, err := u.db.QueryContext(ctx, query, fmt.Sprintf("%"+contain+"%"), limit, offset)
+			FROM users WHERE username LIKE '%' || $1 || '%' LIMIT $2 OFFSET $3`
+	rows, err := u.db.QueryContext(ctx, query, contain, limit, offset)
 	if err != nil {
 		return nil, err
 	}
