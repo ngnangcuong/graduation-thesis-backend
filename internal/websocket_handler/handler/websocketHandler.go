@@ -16,8 +16,10 @@ type Handler struct {
 }
 
 func NewHandler(worker *worker.Worker) *Handler {
+	upgrader := websocket.Upgrader{}
+	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	return &Handler{
-		upgrader: websocket.Upgrader{},
+		upgrader: upgrader,
 		worker:   worker,
 	}
 }
