@@ -304,6 +304,12 @@ func (w *Worker) handleMessageReadFromUser(message *model.Message, userID string
 		return
 	}
 
+	if err := w.ForwardMessage(message, message.Sender); err != nil {
+		w.logger.Errorf("[handleMessageReadFromUser] Cannot forward message from user %v to user %v: %v",
+			message.Sender, message.Sender, err)
+		return
+	}
+
 	if message.Receiver == "" {
 		w.logger.Debug("")
 		<-w.concurrent
