@@ -3,14 +3,14 @@ package model
 import "time"
 
 type Group struct {
-	ID             string
-	GroupName      string
-	CreatedAt      time.Time
-	LastUpdated    time.Time
-	Members        []string `json:"members"`
-	Admins         []string
-	ConversationID string
-	Deleted        bool
+	ID             string    `json:"id"`
+	GroupName      string    `json:"group_name"`
+	CreatedAt      time.Time `json:"created_at"`
+	LastUpdated    time.Time `json:"last_updated"`
+	Members        []string  `json:"members"`
+	Admins         []string  `json:"admins"`
+	ConversationID string    `json:"conv_id"`
+	Deleted        bool      `json:"deleted"`
 }
 
 type Conversation struct {
