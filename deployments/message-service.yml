@@ -10,4 +10,4 @@ services:
         limits:
           memory: 60m
     volumes:
-      - '../config/message_service/:/graduation-thesis/config/message_service/'
+      - '../config/message/:/graduation-thesis/config/message/'

@@ -24,7 +24,7 @@ func NewHandler(worker *worker.Worker) *Handler {
 
 func (h *Handler) EstablishConnetionWithPeer(c *gin.Context) {
 	// websocketHandlerID := c.MustGet("websocket_handler_id").(string)
-	websocketHandlerID := c.Request.Header.Get("X-Websocket-ID")
+	websocketHandlerID := c.Query("websocket_id")
 	conn, err := h.upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		errorResponse := responseModel.ErrorResponse{
@@ -47,7 +47,7 @@ func (h *Handler) EstablishConnetionWithPeer(c *gin.Context) {
 
 func (h *Handler) EstablishConnetionWithUser(c *gin.Context) {
 	// userID := c.MustGet("user_id").(string)
-	userID := c.Request.Header.Get("X-User-ID")
+	userID := c.Query("user_id")
 	conn, err := h.upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		errorResponse := responseModel.ErrorResponse{

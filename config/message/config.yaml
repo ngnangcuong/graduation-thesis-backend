@@ -1,6 +1,6 @@
 cassandra:
   hosts: ["cassandra-1:9042"]
-  keyspace: graduation-thesis
+  keyspace: graduation_thesis
 
 kafka:
   bootstrap_server: kafka:9092
