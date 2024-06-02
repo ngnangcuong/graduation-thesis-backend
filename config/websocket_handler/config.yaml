@@ -17,7 +17,7 @@ kafka:
   topic: websocket_connection
 
 3rd_party:
-  group_service_url: http://deployments-websocket_manager-1:8080
-  message_service_url: http://deployments-websocket_manager-1:8080
+  group_service_url: http://group_service:8099/v1
+  message_service_url: http://message_service:8090/v1
   websocket_manager_url: http://websocket_manager:8080/v1
   

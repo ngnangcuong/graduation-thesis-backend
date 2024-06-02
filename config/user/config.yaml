@@ -1,8 +1,8 @@
 postgres:
-  url: "host=postgres port=5432 user=postgres password=Pa$$w0rd dbname=graduation_thesis sslmode=disable application_name=user_service"
+  url: "host=192.168.77.112 port=5432 user=postgres password=Pa$w0rd dbname=graduation_thesis sslmode=disable application_name=user_service"
 
 redis:
-  url: redis://localhost:6379/0
+  url: redis://192.168.77.112:6379/0
 
 token:
   at_expires: 60*15 # 15 mins
