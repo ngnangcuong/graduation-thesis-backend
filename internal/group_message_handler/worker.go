@@ -123,8 +123,8 @@ func (w *Worker) processMessage(message *kafka.Message) {
 		}
 		message := Message{
 			ConversationID:        data["conv_id"].(string),
-			ConversationMessageID: data["conv_msg_id"].(int64),
-			MessageTime:           data["msg_time"].(int64),
+			ConversationMessageID: int64(data["conv_msg_id"].(float64)),
+			MessageTime:           int64(data["msg_time"].(float64)),
 			Sender:                data["sender"].(string),
 			Content:               data["content"].(string),
 			Receiver:              user,
