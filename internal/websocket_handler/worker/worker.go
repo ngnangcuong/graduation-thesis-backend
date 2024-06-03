@@ -214,7 +214,8 @@ func (w *Worker) KeepUsersConnection(conn *websocket.Conn, userID string) error 
 
 					return
 				}
-				w.logger.Errorf("")
+				w.logger.Errorf("[%v] Error happens when read JSON from user: %v", userID, err.Error())
+				continue
 			}
 
 			w.concurrent <- struct{}{}
