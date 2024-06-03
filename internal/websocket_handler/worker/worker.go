@@ -297,7 +297,7 @@ func (w *Worker) ForwardUnreadMessage(conn *websocket.Conn, userID string) {
 func (w *Worker) handleMessageReadFromUser(message *model.Message, userID string) {
 	var err error
 
-	message.ConversationMessageID, err = w.StoreMessage(message)
+	message.ConversationMessageID, err = w.StoreMessage(message, userID)
 	if err != nil {
 		w.logger.Errorf("")
 		<-w.concurrent
@@ -386,7 +386,7 @@ func (w *Worker) RemoveUser(userID string) error {
 	return nil
 }
 
-func (w *Worker) StoreMessage(message *model.Message) (int64, error) {
+func (w *Worker) StoreMessage(message *model.Message, userID string) (int64, error) {
 	sendMessageRequest := model.SendMessageRequest{
 		ConversationID: message.ConversationID,
 		Sender:         message.Sender,
@@ -405,14 +405,14 @@ func (w *Worker) StoreMessage(message *model.Message) (int64, error) {
 
 	for i := 1; i <= w.maxRetries; i++ {
 		result, err = request.HTTPRequestCall(
-			w.messageServiceUrl,
+			fmt.Sprintf("%s/message", w.messageServiceUrl),
 			http.MethodPost,
-			"",
+			userID,
 			body,
 			5*time.Second,
 		)
 		if err != nil {
-			w.logger.Errorf("")
+			w.logger.Errorf("[StoreMessage] Error happen when send message to message service: %v", err.Error())
 			time.Sleep(w.retryInterval)
 			continue
 		}
