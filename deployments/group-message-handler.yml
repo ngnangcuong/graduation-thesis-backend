@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  group_message_handler:
+    image: group_message_handler:1.0
+    ports: 
+      - "18081:18081"
+    volumes:
+      - '../config/group_message_handler/:/graduation-thesis/config/group_message_handler/'
+    deploy:
+      resources:
+        limits:
+          memory: 60m
