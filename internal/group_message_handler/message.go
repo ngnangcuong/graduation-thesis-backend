@@ -34,7 +34,7 @@ type Message struct {
 	ConversationMessageID int64  `json:"conv_msg_id"`
 	MessageTime           int64  `json:"msg_time"`
 	Sender                string `json:"sender"`
-	Content               []byte `json:"content"`
+	Content               string `json:"content"`
 	Receiver              string `json:"receiver"`
 }
 
