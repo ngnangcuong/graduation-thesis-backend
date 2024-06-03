@@ -32,6 +32,7 @@ func NewTokenService(tokenRepo *token.TokenRepo, atExpires, rtExpires int64, acc
 
 func (t *TokenService) CreateToken(userId string) (*model.TokenDetails, error) {
 	td := model.TokenDetails{}
+	td.UserID = userId
 	td.AccessUuid = uuid.NewV4().String()
 	td.AtExpires = t.atExpires
 	td.RefreshUuid = uuid.NewV4().String()

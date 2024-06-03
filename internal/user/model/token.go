@@ -6,6 +6,7 @@ type AccessDetails struct {
 }
 
 type TokenDetails struct {
+	UserID       string `json:"user_id,omitempty"`
 	AccessToken  string `json:"access_token,omitempty"`
 	AccessUuid   string `json:"access_uuid,omitempty"`
 	RefreshToken string `json:"refresh_token,omitempty"`
