@@ -146,11 +146,11 @@ func (m *MessageService) getConversationMembers(ctx context.Context, userID, con
 	}
 
 	type conversation struct {
-		ID      string
-		Members []string
+		ID      string   `json:"id"`
+		Members []string `json:"members"`
 	}
 
-	members := result.(map[string]interface{})["members"].([]string)
+	members := result.(conversation).Members
 	return members, nil
 }
 
