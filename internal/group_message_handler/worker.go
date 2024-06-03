@@ -189,7 +189,9 @@ func (w *Worker) getWebsocketHandlerConnectedUser(userID string) (*WebsocketHand
 	if err != nil {
 		return nil, err
 	}
+	w.logger.Infof("test %v", result)
 	websocketHandler, _ := result.(WebsocketHandler)
+	w.logger.Infof("test 1 %v", websocketHandler)
 	return &websocketHandler, nil
 }
 
