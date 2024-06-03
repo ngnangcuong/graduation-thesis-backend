@@ -613,6 +613,10 @@ func (w *Worker) ForwardMessage(message *model.Message, userID string) error {
 		w.logger.Errorf("[ForwardMessage] Cannot get websocket handler connecting to user %v: %v", userID, err)
 		return err
 	}
+	if websocketHandler.ID == "" {
+		w.logger.Errorf("[ForwardMessage] User %v is not online", userID)
+		return nil
+	}
 	if websocketHandler.ID == w.id { // Skip the case that result return is itself
 		w.logger.Errorf("[ForwardMessage] Information may not be updated in time")
 		return nil
