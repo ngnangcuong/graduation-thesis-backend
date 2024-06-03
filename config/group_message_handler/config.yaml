@@ -4,8 +4,8 @@ logger:
 
 kafka:
   bootstrap_servers: kafka:9092
-  group_id: messages
-  topics: group_message_handler
+  group_id: group_message_handler
+  topics: messages
 
 3rd_party:
   group_url: http://group_service:8099/v1
