@@ -72,7 +72,7 @@ func NewWorker(
 		cacheTimeout:        cacheTimeout,
 		wg:                  &sync.WaitGroup{},
 		logger:              logger,
-		concurrent:          make(chan struct{}, 1000),
+		concurrent:          make(chan struct{}, 10000),
 		done:                make(chan struct{}),
 	}
 }
@@ -135,7 +135,7 @@ func (w *Worker) KeepPeersConnection(conn *websocket.Conn, websocketID string) e
 				continue
 			}
 
-			w.concurrent <- struct{}{}
+			// w.concurrent <- struct{}{}
 			go w.ForwardMessage(&message, message.Receiver)
 		}
 	}(conn, w, websocketID, done)
@@ -218,7 +218,7 @@ func (w *Worker) KeepUsersConnection(conn *websocket.Conn, userID string) error 
 				continue
 			}
 
-			w.concurrent <- struct{}{}
+			// w.concurrent <- struct{}{}
 			w.logger.Debugf("[%v] User %v send message %v", userID, userID, message)
 			go w.handleMessageReadFromUser(&message, userID)
 		}
@@ -296,12 +296,16 @@ func (w *Worker) ForwardUnreadMessage(conn *websocket.Conn, userID string) {
 }
 
 func (w *Worker) handleMessageReadFromUser(message *model.Message, userID string) {
+	w.concurrent <- struct{}{}
+	defer func() {
+		<-w.concurrent
+	}()
 	var err error
 
 	message.ConversationMessageID, err = w.StoreMessage(message, userID)
 	if err != nil {
-		w.logger.Errorf("")
-		<-w.concurrent
+		w.logger.Errorf("[handleMessageReadFromUser] Cannot store user %v's message: %v", userID, err.Error())
+		// <-w.concurrent
 		return
 	}
 
@@ -312,8 +316,7 @@ func (w *Worker) handleMessageReadFromUser(message *model.Message, userID string
 	}
 
 	if message.Receiver == "" {
-		w.logger.Debug("")
-		<-w.concurrent
+		// <-w.concurrent
 		return
 	}
 
@@ -584,6 +587,7 @@ func (w *Worker) HeartBeat() {
 }
 
 func (w *Worker) ForwardMessage(message *model.Message, userID string) error {
+	w.concurrent <- struct{}{}
 	defer func(w *Worker) {
 		<-w.concurrent
 	}(w)
