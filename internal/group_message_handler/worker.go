@@ -140,7 +140,7 @@ func (w *Worker) getConversationUsers(conversationID string) ([]string, error) {
 	)
 	for i := 1; i <= w.maxRetries; i++ {
 		result, err = request.HTTPRequestCall(
-			fmt.Sprintf("%s/v1/conversation/%s", w.groupURL, conversationID),
+			fmt.Sprintf("%s/conversation/%s", w.groupURL, conversationID),
 			http.MethodGet,
 			"",
 			nil,
@@ -158,8 +158,12 @@ func (w *Worker) getConversationUsers(conversationID string) ([]string, error) {
 		return nil, err
 	}
 
-	conversationInfo, _ := result.(Conversation)
-	return conversationInfo.Members, nil
+	membersInterface := result.(map[string]interface{})["members"].([]interface{})
+	members := make([]string, len(membersInterface))
+	for i, value := range membersInterface {
+		members[i] = fmt.Sprintf("%v", value)
+	}
+	return members, nil
 }
 
 func (w *Worker) getWebsocketHandlerConnectedUser(userID string) (*WebsocketHandler, error) {
@@ -169,7 +173,7 @@ func (w *Worker) getWebsocketHandlerConnectedUser(userID string) (*WebsocketHand
 	)
 	for i := 1; i <= w.maxRetries; i++ {
 		result, err = request.HTTPRequestCall(
-			fmt.Sprintf("%s/v1/user/%s", w.websocketManagerURL, userID),
+			fmt.Sprintf("%s/user/%s", w.websocketManagerURL, userID),
 			http.MethodGet,
 			"",
 			nil,
@@ -199,6 +203,14 @@ func (w *Worker) sendMessage(userID string, message Message) {
 			message.ConversationID,
 			userID,
 			err.Error(),
+		)
+		return
+	}
+	if websocketHandler.ID == "" {
+		w.logger.Debugf("[MAIN][message_%v_%v] User %v is not online",
+			message.ConversationMessageID,
+			message.ConversationID,
+			userID,
 		)
 		return
 	}

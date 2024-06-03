@@ -1,17 +1,17 @@
 logger:
-  path:
-  level:
+  path: ./log/group_message_handler/info.log
+  level: debug
 
 kafka:
-  bootstrap_servers:
-  group_id:
-  topics:
+  bootstrap_servers: kafka:9092
+  group_id: messages
+  topics: group_message_handler
 
 3rd_party:
-  group_url:
-  websocket_manager_url:
+  group_url: http://group_service:8099/v1
+  websocket_manager_url: http://websocket_manager:8080/v1
 
-timeout:
-max_retries:
-retry_interval:
-ping_interval:
+timeout: 5s
+max_retries: 5
+retry_interval: 1s
+ping_interval: 5s
