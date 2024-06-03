@@ -91,7 +91,6 @@ func (w *Worker) Do() error {
 				// TODO: Error Handling with broker down error
 				w.logger.Errorf("[MAIN] Error: %v\n", e)
 			default:
-				w.logger.Infof("[MAIN] Ignored: %v\n", e)
 			}
 		}
 	}
