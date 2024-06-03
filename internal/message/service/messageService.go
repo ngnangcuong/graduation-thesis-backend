@@ -150,7 +150,11 @@ func (m *MessageService) getConversationMembers(ctx context.Context, userID, con
 		Members []string `json:"members"`
 	}
 
-	members := result.(conversation).Members
+	membersInterface := result.(map[string]interface{})["members"].([]interface{})
+	members := make([]string, len(membersInterface))
+	for i, value := range membersInterface {
+		members[i] = fmt.Sprintf("%v", value)
+	}
 	return members, nil
 }
 
