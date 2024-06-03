@@ -86,12 +86,12 @@ func (w *Worker) Do() error {
 				w.logger.Infof("[MAIN] Done in processing message at %d[%d]\n", e.TopicPartition.Partition, e.TopicPartition.Offset)
 			case kafka.PartitionEOF:
 				// TODO: Study of PartitionEOF events'affect --> Normal events, just correnponded for notification
-				w.logger.Debugf("[MAIN] Reached %v\n", e)
+				w.logger.Infof("[MAIN] Reached %v\n", e)
 			case kafka.Error:
 				// TODO: Error Handling with broker down error
 				w.logger.Errorf("[MAIN] Error: %v\n", e)
 			default:
-				w.logger.Debugf("[MAIN] Ignored: %v\n", e)
+				w.logger.Infof("[MAIN] Ignored: %v\n", e)
 			}
 		}
 	}
@@ -111,7 +111,7 @@ func (w *Worker) processMessage(message *kafka.Message) {
 	}
 
 	if len(users) <= 2 {
-		w.logger.Debug("[MAIN] Ignored: conversation has only two members\n")
+		w.logger.Info("[MAIN] Ignored: conversation has only two members\n")
 		return
 	}
 
@@ -207,7 +207,7 @@ func (w *Worker) sendMessage(userID string, message Message) {
 		return
 	}
 	if websocketHandler.ID == "" {
-		w.logger.Debugf("[MAIN][message_%v_%v] User %v is not online",
+		w.logger.Infof("[MAIN][message_%v_%v] User %v is not online",
 			message.ConversationMessageID,
 			message.ConversationID,
 			userID,
@@ -261,7 +261,7 @@ func (w *Worker) keepWebsocketConnection(conn *websocket.Conn, websocketHandlerI
 				if isCloseErr || isNetErr {
 					w.mapConnection.Get(websocketHandlerID).Close()
 					w.mapConnection.Del(websocketHandlerID)
-					w.logger.Debugf("[%s][Read] Disconneted connection with websocket handler %s", websocketHandlerID, websocketHandlerID)
+					w.logger.Infof("[%s][Read] Disconneted connection with websocket handler %s", websocketHandlerID, websocketHandlerID)
 					return
 				}
 				w.logger.Errorf("[%s][Read] Error happens when try to ping to websocket handler %s", websocketHandlerID, websocketHandlerID)
@@ -281,7 +281,7 @@ func (w *Worker) keepWebsocketConnection(conn *websocket.Conn, websocketHandlerI
 
 		case message, ok := <-w.mapConnection.Get(websocketHandlerID).Channel:
 			if !ok { // Channel has been closed
-				w.logger.Debugf("[%s][Write] Connection to websocket handler %s has already closed\n", websocketHandlerID, websocketHandlerID)
+				w.logger.Infof("[%s][Write] Connection to websocket handler %s has already closed\n", websocketHandlerID, websocketHandlerID)
 				return
 			}
 			err := conn.WriteJSON(message)

@@ -219,7 +219,7 @@ func (w *Worker) KeepUsersConnection(conn *websocket.Conn, userID string) error 
 			}
 
 			// w.concurrent <- struct{}{}
-			w.logger.Debugf("[%v] User %v send message %v", userID, userID, message)
+			w.logger.Infof("[%v] User %v send message %v", userID, userID, message)
 			go w.handleMessageReadFromUser(&message, userID)
 		}
 	}(conn, w, userID, done)
@@ -327,7 +327,7 @@ func (w *Worker) handleMessageReadFromUser(message *model.Message, userID string
 	// 	return
 	// }
 	// if len(users) > 2 {
-	// 	w.logger.Debugf("")
+	// 	w.logger.Infof("")
 	// 	<-w.concurrent
 	// 	return
 	// }
