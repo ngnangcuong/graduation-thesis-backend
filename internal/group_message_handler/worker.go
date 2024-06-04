@@ -167,8 +167,9 @@ func (w *Worker) getConversationUsers(conversationID string) ([]string, error) {
 
 func (w *Worker) getWebsocketHandlerConnectedUser(userID string) (*WebsocketHandler, error) {
 	var (
-		result interface{}
-		err    error
+		result           interface{}
+		err              error
+		websocketHandler WebsocketHandler
 	)
 	for i := 1; i <= w.maxRetries; i++ {
 		result, err = request.HTTPRequestCall(
@@ -189,9 +190,12 @@ func (w *Worker) getWebsocketHandlerConnectedUser(userID string) (*WebsocketHand
 	if err != nil {
 		return nil, err
 	}
-	w.logger.Infof("test %v", result)
-	websocketHandler, _ := result.(WebsocketHandler)
-	w.logger.Infof("test 1 %v", websocketHandler)
+	websocketHandlerJSON, _ := json.Marshal(result)
+	if err := json.Unmarshal(websocketHandlerJSON, &websocketHandler); err != nil {
+		w.logger.Errorf("[getWebsocketHandlerConnectedUser] Cannot unmarshal result from websocket manager: %v", err.Error())
+		return nil, err
+	}
+	w.logger.Infof("websocket Handler is: %v", websocketHandler)
 	return &websocketHandler, nil
 }
 

@@ -650,8 +650,9 @@ func (w *Worker) ForwardMessage(message *model.Message, userID string) error {
 
 func (w *Worker) GetWebsocketHandlerConnectUser(userID string) (*model.WebsocketHandlerClient, error) {
 	var (
-		result interface{}
-		err    error
+		result           interface{}
+		err              error
+		websocketHandler model.WebsocketHandlerClient
 	)
 	for i := 1; i <= w.maxRetries; i++ {
 		result, err = request.HTTPRequestCall(
@@ -673,7 +674,12 @@ func (w *Worker) GetWebsocketHandlerConnectUser(userID string) (*model.Websocket
 	if err != nil {
 		return nil, err
 	}
-	websocketHandler, _ := result.(model.WebsocketHandlerClient)
+
+	websocketHandlerJSON, _ := json.Marshal(result)
+	if err := json.Unmarshal(websocketHandlerJSON, &websocketHandler); err != nil {
+		w.logger.Errorf("[GetWebsocketHandlerConnectUser] Cannot unmarshal result from websocket manager: %v", err.Error())
+		return nil, err
+	}
 	return &websocketHandler, nil
 }
 
@@ -803,8 +809,9 @@ func (w *Worker) GetMessages(conversationID string, lastMessageID int64) ([]mode
 
 func (w *Worker) GetUserInbox(userID string) ([]*model.UserInbox, error) {
 	var (
-		result interface{}
-		err    error
+		result   interface{}
+		err      error
+		messages []*model.UserInbox
 	)
 
 	for i := 1; i <= w.maxRetries; i++ {
@@ -826,7 +833,11 @@ func (w *Worker) GetUserInbox(userID string) ([]*model.UserInbox, error) {
 		return nil, err
 	}
 
-	messages, _ := result.([]*model.UserInbox)
+	messagesJson, _ := json.Marshal(result)
+	if err := json.Unmarshal(messagesJson, &messages); err != nil {
+		w.logger.Errorf("[GetUserInbox] Cannot unmarshal user inboxes: %v", err.Error())
+		return nil, err
+	}
 	return messages, nil
 }
 
