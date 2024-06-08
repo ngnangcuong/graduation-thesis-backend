@@ -426,9 +426,8 @@ func (w *Worker) StoreMessage(message *model.Message, userID string) (int64, err
 	if err != nil {
 		return int64(0), err
 	}
-
-	conversationMessageID, _ := result.(int64)
-	return conversationMessageID, nil
+	conversationMessageID, _ := result.(float64)
+	return int64(conversationMessageID), nil
 }
 func (w *Worker) GetUnreadMessage(userID string) ([]model.Message, error) {
 	userInbox, err := w.GetUserInbox(userID)
