@@ -225,6 +225,19 @@ func (w *Worker) KeepUsersConnection(conn *websocket.Conn, userID string) error 
 	}(conn, w, userID, done)
 
 	// go w.ForwardUnreadMessage(conn, userID)
+	go func() {
+		unreadMessages, err := w.GetUnreadMessage(userID)
+		if err != nil {
+			w.logger.Errorf("[GetUnreadMessage] %v", err.Error())
+			return
+		}
+
+		for _, message := range unreadMessages {
+			if !userConnection.Write(message) {
+				w.logger.Errorf("[ForwardUserInbox] %v", err.Error())
+			}
+		}
+	}()
 
 	connection := w.mapUser.Get(userID)
 	for {

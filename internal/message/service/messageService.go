@@ -115,6 +115,8 @@ func (m *MessageService) UserInbox(ctx context.Context, userID string, limit, of
 		return nil, &errorMessage
 	}
 
+	_ = m.messageRepo.DeleteUserInbox(ctx, userID)
+
 	successResponse := responseModel.SuccessResponse{
 		Status: http.StatusOK,
 		Result: userInboxes,
