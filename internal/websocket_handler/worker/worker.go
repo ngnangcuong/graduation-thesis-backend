@@ -224,7 +224,7 @@ func (w *Worker) KeepUsersConnection(conn *websocket.Conn, userID string) error 
 		}
 	}(conn, w, userID, done)
 
-	go w.ForwardUnreadMessage(conn, userID)
+	// go w.ForwardUnreadMessage(conn, userID)
 
 	connection := w.mapUser.Get(userID)
 	for {
