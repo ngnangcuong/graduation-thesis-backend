@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS graduation_thesis.USER_INBOX (
     msg_time bigint,
     sender text,
     content blob,
-    PRIMARY KEY (user_id, inbox_msg_id)
+    PRIMARY KEY (user_id, inbox_msg_id, conv_id)
 ) WITH CLUSTERING ORDER BY (inbox_msg_id DESC)
 AND default_time_to_live = 2592000
 AND compaction={

@@ -243,8 +243,8 @@ func (m *MessageRepo) InsertUserInbox(ctx context.Context, userID, conversationI
 	return err
 }
 
-func (m *MessageRepo) DeleteUserInbox(ctx context.Context, userID string) error {
-	query := `DELETE FROM user_inbox where user_id = ?`
-	err := m.session.Query(query, userID).WithContext(ctx).Exec()
+func (m *MessageRepo) DeleteUserInbox(ctx context.Context, userID, conversationID string) error {
+	query := `DELETE FROM user_inbox WHERE user_id = ? AND conv_id = ?`
+	err := m.session.Query(query, userID, conversationID).WithContext(ctx).Exec()
 	return err
 }

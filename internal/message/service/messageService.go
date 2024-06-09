@@ -115,8 +115,6 @@ func (m *MessageService) UserInbox(ctx context.Context, userID string, limit, of
 		return nil, &errorMessage
 	}
 
-	_ = m.messageRepo.DeleteUserInbox(ctx, userID)
-
 	successResponse := responseModel.SuccessResponse{
 		Status: http.StatusOK,
 		Result: userInboxes,
@@ -252,7 +250,7 @@ func (m *MessageService) UpdateReadReceipts(ctx context.Context, updateReadRecei
 
 	go func(m *MessageService, ctx context.Context, updateReadReceiptRequest *model.UpdateReadReceiptRequest) {
 		for _, readReceipt := range updateReadReceiptRequest.ReadReceiptUpdate {
-			if err := m.DeleteUserInbox(ctx, readReceipt.UserID); err != nil {
+			if err := m.DeleteUserInbox(ctx, readReceipt.UserID, updateReadReceiptRequest.ConversationID); err != nil {
 				m.logger.Errorf("[DeleteUserInbox] Cannot clear user %v inbox: %v", readReceipt.UserID, err)
 				time.Sleep(time.Second)
 			}
@@ -331,8 +329,8 @@ func (m *MessageService) InsertUserInboxes(ctx context.Context, conversationID, 
 	return nil
 }
 
-func (m *MessageService) DeleteUserInbox(ctx context.Context, userID string) error {
-	if err := m.messageRepo.DeleteUserInbox(ctx, userID); err != nil {
+func (m *MessageService) DeleteUserInbox(ctx context.Context, userID, conversationID string) error {
+	if err := m.messageRepo.DeleteUserInbox(ctx, userID, conversationID); err != nil {
 		return err
 	}
 
