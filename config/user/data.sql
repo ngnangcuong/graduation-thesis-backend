@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS users {
     phone_number varchar(255),
     created_at timestamp DEFAULT current_timestamp,
     last_updated timestamp DEFAULT current_timestamp,
-    avatar varchar(255)
+    avatar varchar(255),
+    public_key text
 };
 CREATE UNIQUE INDEX username_idx ON users (username);
 CREATE UNIQUE INDEX email_idx ON users (email);

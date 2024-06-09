@@ -66,6 +66,7 @@ func (u *UserService) GetUser(ctx context.Context, id string) (*responseModel.Su
 			Avatar:      userCache.Avatar,
 			CreatedAt:   userCache.CreatedAt,
 			LastUpdated: userCache.LastUpdated,
+			PublicKey:   userCache.PublicKey,
 		}
 		return &successResponse, nil
 	}
@@ -99,6 +100,7 @@ func (u *UserService) GetUser(ctx context.Context, id string) (*responseModel.Su
 		Avatar:      user.Avatar,
 		CreatedAt:   user.CreatedAt,
 		LastUpdated: user.LastUpdated,
+		PublicKey:   user.PublicKey,
 	}
 	successResponse.Status = http.StatusOK
 
@@ -122,6 +124,7 @@ func (u *UserService) GetUserByUsername(ctx context.Context, username string) (*
 			Avatar:      userCache.Avatar,
 			CreatedAt:   userCache.CreatedAt,
 			LastUpdated: userCache.LastUpdated,
+			PublicKey:   userCache.PublicKey,
 		}
 		return &successResponse, nil
 	}
@@ -153,6 +156,7 @@ func (u *UserService) GetUserByUsername(ctx context.Context, username string) (*
 		Avatar:      user.Avatar,
 		CreatedAt:   user.CreatedAt,
 		LastUpdated: user.LastUpdated,
+		PublicKey:   user.PublicKey,
 	}
 	successResponse.Status = http.StatusOK
 
@@ -183,6 +187,7 @@ func (u *UserService) GetAllUser(ctx context.Context, contain string, limit, off
 			Avatar:      user.Avatar,
 			CreatedAt:   user.CreatedAt,
 			LastUpdated: user.LastUpdated,
+			PublicKey:   user.PublicKey,
 		}
 		results = append(results, result)
 	}
@@ -296,6 +301,9 @@ func (u *UserService) UpdateUser(ctx context.Context, id string, updateUserReque
 	}
 	if updateUserRequest.Avatar == nil {
 		updateUserParams.Avatar = user.Avatar
+	}
+	if updateUserRequest.PublicKey == "" {
+		updateUserParams.PublicKey = user.PublicKey
 	}
 
 	uErr := u.userRepoPostgres.Update(ctx, id, updateUserParams)

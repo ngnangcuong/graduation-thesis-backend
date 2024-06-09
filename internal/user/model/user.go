@@ -13,6 +13,7 @@ type User struct {
 	CreatedAt   time.Time
 	LastUpdated time.Time
 	Avatar      *Avatar
+	PublicKey   string
 }
 
 type Avatar string
@@ -35,6 +36,7 @@ type UpdateUserParams struct {
 	Email       string
 	PhoneNumber string
 	Avatar      *Avatar
+	PublicKey   string
 }
 
 type LoginRequest struct {
@@ -59,6 +61,7 @@ type UpdateUserRequest struct {
 	Email       string  `json:"email"`
 	PhoneNumber string  `json:"phone_number"`
 	Avatar      *Avatar `json:"avatar"`
+	PublicKey   string  `json:"public_key"`
 }
 
 type GetUserResponse struct {
@@ -71,4 +74,5 @@ type GetUserResponse struct {
 	Avatar      *Avatar   `json:"avatar"`
 	CreatedAt   time.Time `json:"created_at"`
 	LastUpdated time.Time `json:"last_updated"`
+	PublicKey   string    `json:"public_key"`
 }
