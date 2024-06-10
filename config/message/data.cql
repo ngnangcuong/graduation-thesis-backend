@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS graduation_thesis.USER_INBOX (
     sender text,
     content blob,
     PRIMARY KEY (user_id, conv_id, conv_msg_id)
-) WITH CLUSTERING ORDER BY (conv_msg_id DESC)
+) WITH CLUSTERING ORDER BY (conv_id DESC, conv_msg_id DESC)
 AND default_time_to_live = 2592000
 AND compaction={
     'compaction_window_size': '10',
