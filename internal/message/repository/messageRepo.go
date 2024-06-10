@@ -231,12 +231,7 @@ func (m *MessageRepo) CreateConversationMessage(ctx context.Context, conversatio
 }
 
 func (m *MessageRepo) InsertUserInbox(ctx context.Context, userID, conversationID, sender, content string, convMsgID, messageTime int64) error {
-	getQuery := `SELECT inbox_msg_id FROM user_inbox WHERE user_id = ? LIMIT 1`
 	var lastInboxMsgID int64
-	getErr := m.session.Query(getQuery, userID).WithContext(ctx).Scan(&lastInboxMsgID)
-	if getErr != nil && !errors.Is(getErr, gocql.ErrNotFound) {
-		return getErr
-	}
 
 	query := `INSERT INTO user_inbox (user_id, inbox_msg_id, conv_id, conv_msg_id, msg_time, sender, content) VALUES (?, ?, ?, ?, ?, ?, ?)`
 	err := m.session.Query(query, userID, lastInboxMsgID+1, conversationID, convMsgID, messageTime, sender, content).WithContext(ctx).Exec()
