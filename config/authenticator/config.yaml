@@ -1,12 +1,12 @@
 app:
-  port: 8080
+  port: 8085
 
 redis:
-  url:
+  url: redis://localhost:6379/0
 
-user_service_url:
+user_service_url: http://user_service:8098/v1
 
-at_expires:
-rt_expires:
-access_secret:
-refresh_secret:
+at_expires: 60*15 # 15 mins
+rt_expires: 60*60*24 # 1 day
+access_secret: 4cC3Ss_s3CrEt
+refresh_secret: tErC3s_hS3rfer
