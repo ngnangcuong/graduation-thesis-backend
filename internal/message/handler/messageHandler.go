@@ -107,7 +107,7 @@ func (m *MessageHandler) Inboxes(c *gin.Context) {
 
 	successReponse, errorResponse := m.messageService.UserInbox(c, userID, limit, offset, lastInbox)
 	if errorResponse != nil {
-		c.JSON(successReponse.Status, successReponse)
+		c.JSON(errorResponse.Status, errorResponse)
 		return
 	}
 
