@@ -273,7 +273,7 @@ func (m *MessageService) SendMessage(ctx context.Context, request *model.SendMes
 	}
 
 	for i := 0; i < MAXRETRY; i++ {
-		convMsgID, createErr = m.messageRepo.CreateConversationMessage(ctx, request.ConversationID, request.Sender, request.Content, request.MessageTime)
+		convMsgID, createErr = m.messageRepo.CreateConversationMessage(ctx, request.ConversationID, request.Sender, request.Content, request.IV, request.MessageTime)
 		if createErr == nil {
 			break
 		}
@@ -286,7 +286,7 @@ func (m *MessageService) SendMessage(ctx context.Context, request *model.SendMes
 		}
 		return nil, &errorMessage
 	}
-	go m.InsertUserInboxes(ctx, request.ConversationID, request.Sender, request.Content, convMsgID, request.MessageTime)
+	go m.InsertUserInboxes(ctx, request.ConversationID, request.Sender, request.Content, request.IV, convMsgID, request.MessageTime)
 	go m.messageRepo.UpdateReadReceipts(ctx, request.ConversationID, []model.ReadReceiptUpdate{
 		{
 			UserID:    request.Sender,
@@ -301,7 +301,7 @@ func (m *MessageService) SendMessage(ctx context.Context, request *model.SendMes
 	return &successMessage, nil
 }
 
-func (m *MessageService) InsertUserInboxes(ctx context.Context, conversationID, sender, content string, convMsgID, messageTime int64) error {
+func (m *MessageService) InsertUserInboxes(ctx context.Context, conversationID, sender, content, iv string, convMsgID, messageTime int64) error {
 	var (
 		members []string
 		err     error
@@ -323,7 +323,7 @@ func (m *MessageService) InsertUserInboxes(ctx context.Context, conversationID, 
 			continue
 		}
 
-		go m.messageRepo.InsertUserInbox(ctx, member, conversationID, sender, content, convMsgID, messageTime)
+		go m.messageRepo.InsertUserInbox(ctx, member, conversationID, sender, content, iv, convMsgID, messageTime)
 	}
 
 	return nil

@@ -94,7 +94,7 @@ func (m *MessageRepo) GetConversation(ctx context.Context, users []string, timeF
 }
 
 func (m *MessageRepo) GetUserInbox(ctx context.Context, userID string, limit, lastInbox int) ([]*model.UserInbox, error) {
-	query := `SELECT user_id, inbox_msg_id, conv_id, conv_msg_id, msg_time, sender, content FROM user_inbox WHERE user_id = ? LIMIT ?`
+	query := `SELECT user_id, inbox_msg_id, conv_id, conv_msg_id, msg_time, sender, content, iv FROM user_inbox WHERE user_id = ? LIMIT ?`
 	scanner := m.session.Query(query, userID, limit).WithContext(ctx).Iter().Scanner()
 
 	var userInboxes []*model.UserInbox
@@ -106,7 +106,8 @@ func (m *MessageRepo) GetUserInbox(ctx context.Context, userID string, limit, la
 			&userInbox.ConversationMessageID,
 			&userInbox.MessageTime,
 			&userInbox.Sender,
-			&userInbox.Content); err != nil {
+			&userInbox.Content,
+			&userInbox.IV); err != nil {
 			return nil, err
 		}
 
@@ -121,7 +122,7 @@ func (m *MessageRepo) GetUserInbox(ctx context.Context, userID string, limit, la
 }
 
 func (m *MessageRepo) GetConversationMessages(ctx context.Context, conversationID string, limit int, beforeMsg int64) ([]*model.ConversationMessage, error) {
-	query := `SELECT conv_id, conv_msg_id, msg_time, sender, content FROM conv_msg WHERE conv_id = ? AND conv_msg_id < ? LIMIT ?`
+	query := `SELECT conv_id, conv_msg_id, msg_time, sender, content, iv FROM conv_msg WHERE conv_id = ? AND conv_msg_id < ? LIMIT ?`
 	scanner := m.session.Query(query, conversationID, beforeMsg, limit).WithContext(ctx).Iter().Scanner()
 
 	var conversationMessages []*model.ConversationMessage
@@ -131,7 +132,8 @@ func (m *MessageRepo) GetConversationMessages(ctx context.Context, conversationI
 			&conversationMessage.ConversationMessageID,
 			&conversationMessage.MessageTime,
 			&conversationMessage.Sender,
-			&conversationMessage.Content); err != nil {
+			&conversationMessage.Content,
+			&conversationMessage.IV); err != nil {
 			return nil, err
 		}
 
@@ -186,7 +188,7 @@ func (m *MessageRepo) UpdateReadReceipts(ctx context.Context, conversationID str
 	return err
 }
 
-func (m *MessageRepo) CreateConversationMessage(ctx context.Context, conversationID, sender, content string, messageTime int64) (int64, error) {
+func (m *MessageRepo) CreateConversationMessage(ctx context.Context, conversationID, sender, content, iv string, messageTime int64) (int64, error) {
 	getQuery := `SELECT conv_msg_id FROM conv_msg WHERE conv_id = ? LIMIT 1`
 	var lastConvMsgID int64
 	getErr := m.session.Query(getQuery, conversationID).WithContext(ctx).Scan(&lastConvMsgID)
@@ -194,8 +196,8 @@ func (m *MessageRepo) CreateConversationMessage(ctx context.Context, conversatio
 		return int64(0), getErr
 	}
 
-	createQuery := `INSERT INTO conv_msg(conv_id, conv_msg_id, msg_time, sender, content) VALUES (?, ?, ?, ?, ?)`
-	createErr := m.session.Query(createQuery, conversationID, lastConvMsgID+1, messageTime, sender, content).WithContext(ctx).Exec()
+	createQuery := `INSERT INTO conv_msg(conv_id, conv_msg_id, msg_time, sender, content, iv) VALUES (?, ?, ?, ?, ?, ?)`
+	createErr := m.session.Query(createQuery, conversationID, lastConvMsgID+1, messageTime, sender, content, iv).WithContext(ctx).Exec()
 	if createErr != nil {
 		return int64(0), createErr
 	}
@@ -206,6 +208,7 @@ func (m *MessageRepo) CreateConversationMessage(ctx context.Context, conversatio
 		MessageTime:           messageTime,
 		Sender:                sender,
 		Content:               content,
+		IV:                    iv,
 	}
 
 	kafkaMessage := model.KafkaMessage{
@@ -230,11 +233,11 @@ func (m *MessageRepo) CreateConversationMessage(ctx context.Context, conversatio
 	return lastConvMsgID + 1, nil
 }
 
-func (m *MessageRepo) InsertUserInbox(ctx context.Context, userID, conversationID, sender, content string, convMsgID, messageTime int64) error {
+func (m *MessageRepo) InsertUserInbox(ctx context.Context, userID, conversationID, sender, content, iv string, convMsgID, messageTime int64) error {
 	var lastInboxMsgID int64
 
-	query := `INSERT INTO user_inbox (user_id, inbox_msg_id, conv_id, conv_msg_id, msg_time, sender, content) VALUES (?, ?, ?, ?, ?, ?, ?)`
-	err := m.session.Query(query, userID, lastInboxMsgID+1, conversationID, convMsgID, messageTime, sender, content).WithContext(ctx).Exec()
+	query := `INSERT INTO user_inbox (user_id, inbox_msg_id, conv_id, conv_msg_id, msg_time, sender, content, iv) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+	err := m.session.Query(query, userID, lastInboxMsgID+1, conversationID, convMsgID, messageTime, sender, content, iv).WithContext(ctx).Exec()
 	return err
 }
 

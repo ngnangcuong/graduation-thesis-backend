@@ -126,6 +126,7 @@ func (w *Worker) processMessage(message *kafka.Message) {
 			MessageTime:           int64(data["msg_time"].(float64)),
 			Sender:                data["sender"].(string),
 			Content:               data["content"].(string),
+			IV:                    data["iv"].(string),
 			Receiver:              user,
 		}
 		go w.sendMessage(user, message)

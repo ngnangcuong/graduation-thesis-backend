@@ -6,12 +6,14 @@ type Message struct {
 	MessageTime           int64  `json:"msg_time"`
 	Sender                string `json:"sender"`
 	Content               string `json:"content"`
+	IV                    string `json:"iv"`
 	Receiver              string `json:"receiver"`
 }
 type SendMessageRequest struct {
 	ConversationID string `json:"conv_id" binding:"required"`
 	Sender         string `json:"sender" binding:"required"`
 	Content        string `json:"content" binding:"required,max=10000"`
+	IV             string `json:"iv"`
 	MessageTime    int64  `json:"msg_time"`
 }
 
@@ -26,6 +28,7 @@ type MessageResponse struct {
 	MessageTime           int64  `json:"msg_time"`
 	Sender                string `json:"sender"`
 	Content               string `json:"content"`
+	IV                    string `json:"iv"`
 }
 
 type UserInboxResponse struct {
@@ -58,4 +61,5 @@ type UserInbox struct {
 	MessageTime           int64  `json:"msg_time" cql:"msg_time"`
 	Sender                string `json:"sender" cql:"sender"`
 	Content               string `json:"content" cql:"content"`
+	IV                    string `json:"iv" cql:"iv"`
 }

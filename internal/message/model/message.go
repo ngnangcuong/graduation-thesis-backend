@@ -54,6 +54,7 @@ type ConversationMessage struct {
 	MessageTime           int64  `json:"msg_time" cql:"msg_time"`
 	Sender                string `json:"sender" cql:"sender"`
 	Content               string `json:"content" cql:"content"`
+	IV                    string `json:"iv" cql:"iv"`
 }
 
 type UserInbox struct {
@@ -64,6 +65,7 @@ type UserInbox struct {
 	MessageTime           int64  `json:"msg_time" cql:"msg_time"`
 	Sender                string `json:"sender" cql:"sender"`
 	Content               string `json:"content" cql:"content"`
+	IV                    string `json:"iv" cql:"iv"`
 }
 
 type ReadReceipt struct {
@@ -104,6 +106,7 @@ type SendMessageRequest struct {
 	ConversationID string `json:"conv_id" binding:"required"`
 	Sender         string `json:"sender" binding:"required"`
 	Content        string `json:"content" binding:"required,max=10000"`
+	IV             string `json:"iv"`
 	MessageTime    int64  `json:"msg_time"`
 }
 

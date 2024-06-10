@@ -409,6 +409,7 @@ func (w *Worker) StoreMessage(message *model.Message, userID string) (int64, err
 		Sender:         message.Sender,
 		Content:        message.Content,
 		MessageTime:    message.MessageTime,
+		IV:             message.IV,
 	}
 	body := new(bytes.Buffer)
 	if err := json.NewEncoder(body).Encode(&sendMessageRequest); err != nil {
@@ -456,6 +457,7 @@ func (w *Worker) GetUnreadMessage(userID string) ([]model.Message, error) {
 			MessageTime:           inbox.MessageTime,
 			Sender:                inbox.Sender,
 			Content:               inbox.Content,
+			IV:                    inbox.IV,
 			Receiver:              userID,
 		}
 		messages = append(messages, message)

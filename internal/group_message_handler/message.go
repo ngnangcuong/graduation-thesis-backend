@@ -11,6 +11,7 @@ type ConversationMessage struct {
 	MessageTime           int64  `json:"msg_time"`
 	Sender                string `json:"sender"`
 	Content               []byte `json:"content"`
+	IV                    string `json:"iv"`
 }
 
 type Event struct {
@@ -35,6 +36,7 @@ type Message struct {
 	MessageTime           int64  `json:"msg_time"`
 	Sender                string `json:"sender"`
 	Content               string `json:"content"`
+	IV                    string `json:"iv"`
 	Receiver              string `json:"receiver"`
 }
 
