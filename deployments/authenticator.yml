@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  authenticator:
+    image: authenticator:1.0
+    ports: 
+      - "8095:8095"
+    deploy:
+      resources:
+        limits:
+          memory: 60m
+    volumes:
+      - '../config/authenticator/:/graduation-thesis/config/authenticator/'
