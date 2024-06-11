@@ -114,6 +114,8 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/kong_postgres_password
     secrets:
       - kong_postgres_password
+    ports:
+      - "8432:8432"
     healthcheck:
       test:
         [
@@ -145,7 +147,7 @@ services:
       DB_HOST: db
       DB_USER: kong
       DB_PASSWORD: kong
-      DB_PORT: 5432
+      DB_PORT: 8432
       TOKEN_SECRET: km1GUr4RkcQD7DewhJPNXrCuZwcKmqjb
       DB_DATABASE: kong
       NODE_ENV: development

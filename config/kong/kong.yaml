@@ -12,7 +12,7 @@ services:
           - "http"
           - "https"
     plugins:
-      - name: custom-auth
+      - name: custom-jwt
         config:
           introspection_endpoint: http://authenticator:8085/v1/validate
           token_header: Authorization
