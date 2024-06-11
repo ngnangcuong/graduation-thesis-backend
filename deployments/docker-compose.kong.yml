@@ -37,6 +37,10 @@ services:
     networks:
       - kong-net
     restart: on-failure
+    deploy:
+      resources:
+        limits:
+          memory: 50m
 
   kong-migrations-up:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
@@ -51,6 +55,10 @@ services:
     networks:
       - kong-net
     restart: on-failure
+    deploy:
+      resources:
+        limits:
+          memory: 50m
 
   kong:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
@@ -104,6 +112,10 @@ services:
       - ../config/kong/:/opt/kong/
     security_opt:
       - no-new-privileges
+    deploy:
+      resources:
+        limits:
+          memory: 100m
 
   db:
     image: postgres:9.5
@@ -136,6 +148,10 @@ services:
       - kong-net
     volumes:
       - kong_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 500m
   
   konga:
     image: pantsel/konga:next
@@ -155,6 +171,10 @@ services:
     #   - db
     ports:
       - "1337:1337"
+    deploy:
+      resources:
+        limits:
+          memory: 60m
 
 secrets:
   kong_postgres_password:
