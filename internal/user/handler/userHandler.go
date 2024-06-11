@@ -91,7 +91,7 @@ func (u *UserHandler) UpdateUser(c *gin.Context) {
 	id := c.Param("id")
 	if userID := c.Request.Header.Get("X-User-ID"); id != userID {
 		errorResponse := responseModel.ErrorResponse{
-			Status:       http.StatusUnauthorized,
+			Status:       http.StatusForbidden,
 			ErrorMessage: model.ErrNoPermission.Error(),
 		}
 		c.JSON(errorResponse.Status, errorResponse)

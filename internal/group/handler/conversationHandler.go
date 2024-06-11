@@ -57,7 +57,7 @@ func (con *ConversationHandler) GetConversationsContainUser(c *gin.Context) {
 	userID := c.Param("user_id")
 	if userID != c.Request.Header.Get("X-User-ID") {
 		errorResponse := responseModel.ErrorResponse{
-			Status:       http.StatusUnauthorized,
+			Status:       http.StatusForbidden,
 			ErrorMessage: "no permission",
 		}
 		c.JSON(errorResponse.Status, errorResponse)

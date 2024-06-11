@@ -177,7 +177,7 @@ func (m *MessageService) GetConversationMessages(ctx context.Context, userID, co
 	}
 	if !isInConversation {
 		errorMessage := responseModel.ErrorResponse{
-			Status:       http.StatusUnauthorized,
+			Status:       http.StatusForbidden,
 			ErrorMessage: "only members can see conversation'messages",
 		}
 		return nil, &errorMessage

@@ -86,7 +86,7 @@ func (m *MessageHandler) Inboxes(c *gin.Context) {
 	userID := c.Param("user_id")
 	if userID != c.Request.Header.Get("X-User-ID") {
 		errorMessage := responseModel.ErrorResponse{
-			Status:       http.StatusUnauthorized,
+			Status:       http.StatusForbidden,
 			ErrorMessage: "cannot query another user's inbox",
 		}
 		c.JSON(errorMessage.Status, errorMessage)

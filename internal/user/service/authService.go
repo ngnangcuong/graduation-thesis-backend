@@ -30,7 +30,7 @@ func (a *AuthService) Login(ctx context.Context, loginRequest *model.LoginReques
 	user, err := a.userRepo.GetByUsername(ctx, loginRequest.Username)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			errorResponse.Status = http.StatusUnauthorized
+			errorResponse.Status = http.StatusBadRequest
 			errorResponse.ErrorMessage = model.ErrNoPermission.Error()
 		} else {
 			errorResponse.Status = http.StatusInternalServerError

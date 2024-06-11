@@ -29,7 +29,7 @@ func (a *AuthHandler) Refresh(c *gin.Context) {
 	var refreshRequest model.RefreshRequest
 	if err := c.ShouldBindJSON(&refreshRequest); err != nil {
 		errorResponse := responseModel.ErrorResponse{
-			Status:       http.StatusUnauthorized,
+			Status:       http.StatusBadRequest,
 			ErrorMessage: model.ErrNoPermission.Error(),
 		}
 		c.JSON(errorResponse.Status, errorResponse)
