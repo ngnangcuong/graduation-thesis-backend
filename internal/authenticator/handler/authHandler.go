@@ -51,9 +51,7 @@ func (a *AuthHandler) Validate(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"user_id": successResponse.Result,
-	})
+	c.JSON(200, successResponse)
 }
 
 func (a *AuthHandler) Login(c *gin.Context) {

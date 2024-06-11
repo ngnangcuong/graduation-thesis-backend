@@ -92,7 +92,7 @@ func AuthMiddlewareV2(authenticatorURL string) gin.HandlerFunc {
 			return
 		}
 
-		userID := result.(map[string]interface{})["user_id"].(string)
+		userID := result.(string)
 		c.Request.Header.Add("X-User-ID", userID)
 		c.Next()
 	}
