@@ -92,7 +92,7 @@ func (w *Worker) removePeerFromMap(connection *model.Connection, websocketID str
 }
 
 func (w *Worker) EstablishPeerConnetion(websocketHandler *model.WebsocketHandlerClient) error {
-	u := url.URL{Scheme: "ws", Host: websocketHandler.IPAddress, Path: fmt.Sprintf("/peer/ws?websocket_id=%s", w.id)}
+	u := url.URL{Scheme: "ws", Host: websocketHandler.IPAddress, Path: "/peer/ws", RawQuery: fmt.Sprintf("websocket_id=%s", websocketHandler.ID)}
 
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
