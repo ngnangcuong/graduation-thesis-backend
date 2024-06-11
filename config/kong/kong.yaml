@@ -1,0 +1,25 @@
+# a very minimal declarative config file
+_format_version: "2.1"
+_transform: true
+services:
+  - name: example_service
+    host: example_upstream
+    routes:
+      - name: example_route
+        paths:
+          - "/mock"
+        protocols:
+          - "http"
+          - "https"
+    plugins:
+      - name: custom-auth
+        config:
+          introspection_endpoint: http://authenticator:8085/v1/validate
+          token_header: Authorization
+upstreams:
+  - name: example_upstream
+    targets:
+      - target: httpbun.com:80
+      - target: httpbin.org:80
+      
+
