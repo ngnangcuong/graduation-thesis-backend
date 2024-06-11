@@ -41,7 +41,7 @@ func (a *AuthService) Login(ctx context.Context, loginRequest *model.LoginReques
 
 	check, checkErr := argon2.Compare(user.Password, []byte(loginRequest.Password))
 	if !check || checkErr != nil {
-		errorResponse.Status = http.StatusUnauthorized
+		errorResponse.Status = http.StatusBadRequest
 		errorResponse.ErrorMessage = model.ErrNoPermission.Error()
 		return nil, &errorResponse
 	}
