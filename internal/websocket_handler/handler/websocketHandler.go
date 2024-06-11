@@ -1,8 +1,12 @@
 package handler
 
 import (
+	"errors"
 	"graduation-thesis/internal/websocket_handler/worker"
+	"graduation-thesis/pkg/custom_error"
 	responseModel "graduation-thesis/pkg/model"
+	request "graduation-thesis/pkg/requests"
+	"time"
 
 	"net/http"
 
@@ -51,7 +55,16 @@ func (h *Handler) EstablishConnetionWithPeer(c *gin.Context) {
 
 func (h *Handler) EstablishConnetionWithUser(c *gin.Context) {
 	// userID := c.MustGet("user_id").(string)
-	userID := c.Query("user_id")
+	authToken := c.Query("user_id")
+	userID, vErr := h.validateToken(authToken)
+	if vErr != nil {
+		errorResponse := responseModel.ErrorResponse{
+			Status:       http.StatusBadRequest,
+			ErrorMessage: vErr.Error(),
+		}
+		c.JSON(errorResponse.Status, errorResponse)
+		return
+	}
 	conn, err := h.upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		errorResponse := responseModel.ErrorResponse{
@@ -70,4 +83,31 @@ func (h *Handler) EstablishConnetionWithUser(c *gin.Context) {
 		c.JSON(errorResponse.Status, errorResponse)
 		return
 	}
+}
+
+func (h *Handler) validateToken(authToken string) (string, error) {
+	var (
+		result interface{}
+		err    error
+	)
+	for i := 1; i <= 5; i++ {
+		result, err = request.HTTPRequestCall(
+			h.authenticatorURL,
+			http.MethodPost,
+			authToken,
+			nil,
+			5*time.Second,
+		)
+		if err != nil && !errors.Is(err, custom_error.ErrNoPermission) {
+			continue
+		}
+		break
+	}
+
+	if err != nil {
+		return "", err
+	}
+
+	userID := result.(string)
+	return userID, nil
 }
