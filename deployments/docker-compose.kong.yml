@@ -149,8 +149,8 @@ services:
       TOKEN_SECRET: km1GUr4RkcQD7DewhJPNXrCuZwcKmqjb
       DB_DATABASE: kong
       NODE_ENV: development
-    depends_on:
-      - db
+    # depends_on:
+    #   - db
     ports:
       - "1337:1337"
 
