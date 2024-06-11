@@ -31,7 +31,7 @@ func InitRouter(authHandler *AuthHandler, userHandler *UserHandler) {
 		userPath.GET("", userHandler.GetUserByUsername)
 		userPath.GET("/all", userHandler.GetAllUser)
 		userPath.POST("", userHandler.Register)
-		userPath.PUT("/:id", userHandler.UpdateUser)
+		userPath.PUT("/:id", middleware.AuthMiddlewareV2(userHandler.authenticatorURL), userHandler.UpdateUser)
 	}
 }
 

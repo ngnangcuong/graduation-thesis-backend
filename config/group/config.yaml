@@ -5,4 +5,7 @@ postgres:
   url: "host=postgres port=5432 user=postgres password=Pa$$w0rd dbname=graduation_thesis sslmode=disable application_name=group_service"
 
 redis:
-  url: redis://localhost:6379/0
+  url: redis://redis:6379/0
+
+authenticator:
+  url: http://authenticator:8085/v1/validate

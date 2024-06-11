@@ -10,12 +10,14 @@ import (
 )
 
 type GroupHandler struct {
-	groupService *service.GroupService
+	groupService     *service.GroupService
+	authenticatorURL string
 }
 
-func NewGroupHandler(groupService *service.GroupService) *GroupHandler {
+func NewGroupHandler(groupService *service.GroupService, authenticatorURL string) *GroupHandler {
 	return &GroupHandler{
-		groupService: groupService,
+		groupService:     groupService,
+		authenticatorURL: authenticatorURL,
 	}
 }
 

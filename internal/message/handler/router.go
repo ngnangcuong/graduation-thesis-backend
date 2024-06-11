@@ -23,8 +23,8 @@ func initRouter(messageHandler *MessageHandler) *gin.Engine {
 		messagePath.POST("/_search/conversation", messageHandler.SearchConversation)
 
 		// New version
-		messagePath.GET("/inbox/:user_id", messageHandler.Inboxes)
-		messagePath.GET("/conversation/:conv_id", messageHandler.ConversationMessages)
+		messagePath.GET("/inbox/:user_id", middleware.AuthMiddlewareV2(messageHandler.authenticatorURL), messageHandler.Inboxes)
+		messagePath.GET("/conversation/:conv_id", middleware.AuthMiddlewareV2(messageHandler.authenticatorURL), messageHandler.ConversationMessages)
 		messagePath.POST("/read_receipt", messageHandler.ReadReceipts)
 		messagePath.PUT("/read_receipt", messageHandler.UpdateReadReceipts)
 		messagePath.POST("/message", messageHandler.SendMessage)

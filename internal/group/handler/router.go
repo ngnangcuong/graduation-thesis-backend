@@ -15,19 +15,19 @@ func NewRouter(groupHandler *GroupHandler, conversationHandler *ConversationHand
 
 	groupPath := r.Group("/v1/group")
 	{
-		groupPath.GET("", groupHandler.GetGroup)
-		groupPath.PUT("/:group_id", groupHandler.UpdateGroup)
-		groupPath.PUT("/:group_id/leave", groupHandler.LeaveGroup)
-		groupPath.POST("", groupHandler.CreateGroup)
-		groupPath.DELETE("/:group_id", groupHandler.DeleteGroup)
+		groupPath.GET("", middleware.AuthMiddlewareV2(groupHandler.authenticatorURL), groupHandler.GetGroup)
+		groupPath.PUT("/:group_id", middleware.AuthMiddlewareV2(groupHandler.authenticatorURL), groupHandler.UpdateGroup)
+		groupPath.PUT("/:group_id/leave", middleware.AuthMiddlewareV2(groupHandler.authenticatorURL), groupHandler.LeaveGroup)
+		groupPath.POST("", middleware.AuthMiddlewareV2(groupHandler.authenticatorURL), groupHandler.CreateGroup)
+		groupPath.DELETE("/:group_id", middleware.AuthMiddlewareV2(groupHandler.authenticatorURL), groupHandler.DeleteGroup)
 	}
 
 	conversationPath := r.Group("/v1/conversation")
 	{
 		conversationPath.GET("/:conversation_id", conversationHandler.GetConversation)
 		conversationPath.POST("", conversationHandler.CreateConversation)
-		conversationPath.GET("/user/:user_id", conversationHandler.GetConversationsContainUser)
-		conversationPath.GET("/user", conversationHandler.GetDirectedConversation)
+		conversationPath.GET("/user/:user_id", middleware.AuthMiddlewareV2(conversationHandler.authenticatorURL), conversationHandler.GetConversationsContainUser)
+		conversationPath.GET("/user", middleware.AuthMiddlewareV2(conversationHandler.authenticatorURL), conversationHandler.GetDirectedConversation)
 	}
 
 	return r

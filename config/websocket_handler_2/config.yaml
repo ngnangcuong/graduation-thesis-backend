@@ -20,4 +20,5 @@ kafka:
   group_service_url: http://group_service:8099/v1
   message_service_url: http://message_service:8090/v1
   websocket_manager_url: http://websocket_manager:8080/v1
+  authenticator_url: http://authenticator:8085/v1/validate
   

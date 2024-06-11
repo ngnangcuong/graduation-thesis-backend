@@ -41,7 +41,7 @@ func Run() {
 	tokenService := service.NewTokenService(tokenRepo, viper.GetInt64("token.at_expires"), viper.GetInt64("token.rt_expires"), viper.GetString("token.access_secret"), viper.GetString("token.refresh_secret"))
 	authService := service.NewAuthService(userRepoPostgres, tokenService)
 
-	userHandler := handler.NewUserHandler(userService)
+	userHandler := handler.NewUserHandler(userService, viper.GetString("authenticator.url"))
 	authHandler := handler.NewAuthHandler(authService, tokenService, userService)
 	router := handler.GetRouter(authHandler, userHandler)
 

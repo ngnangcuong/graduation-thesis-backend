@@ -58,7 +58,7 @@ func Run() {
 		viper.GetDuration("retry_interval"),
 		viper.GetDuration("cache_timeout"),
 		logger)
-	handler := Handler.NewHandler(worker)
+	handler := Handler.NewHandler(worker, viper.GetString("3rd_party.authenticator_url"))
 	router := Handler.GetRouter(handler)
 
 	if err := worker.Register(); err != nil {

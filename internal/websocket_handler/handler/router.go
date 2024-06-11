@@ -13,7 +13,7 @@ func NewRouter(handler *Handler) *gin.Engine {
 	r.Use(middleware.Headers())
 	r.Use(middleware.SetupCors())
 
-	r.GET("/user/ws", handler.EstablishConnetionWithUser)
+	r.GET("/user/ws", middleware.AuthMiddlewareV2(handler.authenticatorURL), handler.EstablishConnetionWithUser)
 	r.GET("/peer/ws", handler.EstablishConnetionWithPeer)
 	return r
 }

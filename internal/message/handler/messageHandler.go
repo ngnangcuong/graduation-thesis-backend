@@ -11,12 +11,14 @@ import (
 )
 
 type MessageHandler struct {
-	messageService *service.MessageService
+	messageService   *service.MessageService
+	authenticatorURL string
 }
 
-func NewMessageHandler(messageService *service.MessageService) *MessageHandler {
+func NewMessageHandler(messageService *service.MessageService, authenticatorURL string) *MessageHandler {
 	return &MessageHandler{
-		messageService: messageService,
+		messageService:   messageService,
+		authenticatorURL: authenticatorURL,
 	}
 }
 

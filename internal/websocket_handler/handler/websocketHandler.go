@@ -11,16 +11,18 @@ import (
 )
 
 type Handler struct {
-	upgrader websocket.Upgrader
-	worker   *worker.Worker
+	upgrader         websocket.Upgrader
+	worker           *worker.Worker
+	authenticatorURL string
 }
 
-func NewHandler(worker *worker.Worker) *Handler {
+func NewHandler(worker *worker.Worker, authenticatorURL string) *Handler {
 	upgrader := websocket.Upgrader{}
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	return &Handler{
-		upgrader: upgrader,
-		worker:   worker,
+		upgrader:         upgrader,
+		worker:           worker,
+		authenticatorURL: authenticatorURL,
 	}
 }
 

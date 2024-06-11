@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -12,6 +13,7 @@ import (
 	responseModel "graduation-thesis/pkg/model"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/redis/go-redis/v9"
 	"github.com/twinj/uuid"
 )
 
@@ -154,7 +156,7 @@ func (t *TokenService) ValidateToken(tokenString string) (*responseModel.Success
 	})
 	if err != nil {
 		errorResponse := responseModel.ErrorResponse{
-			Status:       http.StatusBadRequest,
+			Status:       http.StatusUnauthorized,
 			ErrorMessage: custom_error.ErrInvalidParameter.Error(),
 		}
 		return nil, &errorResponse
@@ -171,8 +173,15 @@ func (t *TokenService) ValidateToken(tokenString string) (*responseModel.Success
 	accessUuid := token.Claims.(jwt.MapClaims)["access_uuid"].(string)
 	userID, uErr := t.FetchUser(accessUuid)
 	if uErr != nil {
+		if errors.Is(uErr, redis.Nil) {
+			errorResponse := responseModel.ErrorResponse{
+				Status:       http.StatusUnauthorized,
+				ErrorMessage: uErr.Error(),
+			}
+			return nil, &errorResponse
+		}
 		errorResponse := responseModel.ErrorResponse{
-			Status:       t.mapError[uErr],
+			Status:       http.StatusInternalServerError,
 			ErrorMessage: uErr.Error(),
 		}
 		return nil, &errorResponse

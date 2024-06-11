@@ -11,11 +11,13 @@ import (
 
 type ConversationHandler struct {
 	conversationService *service.ConversationService
+	authenticatorURL    string
 }
 
-func NewConversationHandler(conversationService *service.ConversationService) *ConversationHandler {
+func NewConversationHandler(conversationService *service.ConversationService, authenticatorURL string) *ConversationHandler {
 	return &ConversationHandler{
 		conversationService: conversationService,
+		authenticatorURL:    authenticatorURL,
 	}
 }
 

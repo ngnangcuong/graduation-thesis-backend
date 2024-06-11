@@ -42,7 +42,7 @@ func (t *TokenService) CreateToken(userId string) (*model.TokenDetails, error) {
 
 	atClaims := jwt.MapClaims{}
 	atClaims["authorized"] = true
-	atClaims["user_id"] = userId
+	// atClaims["user_id"] = userId
 	atClaims["access_uuid"] = td.AccessUuid
 	atClaims["exp"] = td.AtExpires
 
@@ -53,8 +53,8 @@ func (t *TokenService) CreateToken(userId string) (*model.TokenDetails, error) {
 	}
 
 	rtClaims := jwt.MapClaims{}
-	rtClaims["user_id"] = userId
-	rtClaims["refresh_uuid"] = td.AccessUuid
+	// rtClaims["user_id"] = userId
+	rtClaims["refresh_uuid"] = td.RefreshUuid
 	rtClaims["exp"] = td.RtExpires
 
 	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, rtClaims)

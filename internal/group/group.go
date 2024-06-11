@@ -37,8 +37,8 @@ func Run() {
 	groupService := service.NewGroupService(postgre, groupRepo, conversationRepo, errorMap)
 	conversationService := service.NewConversationService(postgre, conversationRepo, errorMap)
 
-	groupHandler := handler.NewGroupHandler(groupService)
-	conversationHandler := handler.NewConversationHandler(conversationService)
+	groupHandler := handler.NewGroupHandler(groupService, viper.GetString("authenticator.url"))
+	conversationHandler := handler.NewConversationHandler(conversationService, viper.GetString("authenticator.url"))
 
 	router := handler.GetRouter(groupHandler, conversationHandler)
 
