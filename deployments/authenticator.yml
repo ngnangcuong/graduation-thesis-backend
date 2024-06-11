@@ -4,7 +4,7 @@ services:
   authenticator:
     image: authenticator:1.0
     ports: 
-      - "8095:8095"
+      - "8085:8085"
     deploy:
       resources:
         limits:

@@ -2,7 +2,7 @@ app:
   port: 8085
 
 redis:
-  url: redis://localhost:6379/0
+  url: redis://redis:6379/0
 
 user_service_url: http://user_service:8098/v1
 
