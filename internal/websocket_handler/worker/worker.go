@@ -179,7 +179,7 @@ func (w *Worker) KeepPeersConnection(conn *websocket.Conn, websocketID string) e
 
 }
 
-func (w *Worker) KeepUsersConnection(conn *websocket.Conn, userID string) error {
+func (w *Worker) KeepUsersConnection(conn *websocket.Conn, userID, authToken string) error {
 	w.logger.Infof("[%v] Connected user %v successfully", userID)
 	defer conn.Close()
 	if err := w.AddNewUser(userID); err != nil {
@@ -224,9 +224,9 @@ func (w *Worker) KeepUsersConnection(conn *websocket.Conn, userID string) error 
 		}
 	}(conn, w, userID, done)
 
-	// go w.ForwardUnreadMessage(conn, userID)
+	// go w.ForwardUnreadMessage(conn, userID, authToken)
 	go func() {
-		unreadMessages, err := w.GetUnreadMessage(userID)
+		unreadMessages, err := w.GetUnreadMessage(userID, authToken)
 		if err != nil {
 			w.logger.Errorf("[GetUnreadMessage] %v", err.Error())
 			return
@@ -278,7 +278,7 @@ func (w *Worker) KeepUsersConnection(conn *websocket.Conn, userID string) error 
 	}
 }
 
-func (w *Worker) ForwardUnreadMessage(conn *websocket.Conn, userID string) {
+func (w *Worker) ForwardUnreadMessage(conn *websocket.Conn, userID, authToken string) {
 	w.wg.Add(1)
 	defer w.wg.Done()
 
@@ -291,7 +291,7 @@ func (w *Worker) ForwardUnreadMessage(conn *websocket.Conn, userID string) {
 		case <-w.done:
 			return
 		case <-timer.C:
-			unreadMessages, err := w.GetUnreadMessage(userID)
+			unreadMessages, err := w.GetUnreadMessage(userID, authToken)
 			if err != nil {
 				w.logger.Errorf("")
 				timer.Reset(w.fetchInterval)
@@ -443,8 +443,8 @@ func (w *Worker) StoreMessage(message *model.Message, userID string) (int64, err
 	conversationMessageID, _ := result.(float64)
 	return int64(conversationMessageID), nil
 }
-func (w *Worker) GetUnreadMessage(userID string) ([]model.Message, error) {
-	userInbox, err := w.GetUserInbox(userID)
+func (w *Worker) GetUnreadMessage(userID, authToken string) ([]model.Message, error) {
+	userInbox, err := w.GetUserInbox(userID, authToken)
 	if err != nil {
 		return nil, err
 	}
@@ -821,7 +821,7 @@ func (w *Worker) GetMessages(conversationID string, lastMessageID int64) ([]mode
 	return messages, nil
 }
 
-func (w *Worker) GetUserInbox(userID string) ([]*model.UserInbox, error) {
+func (w *Worker) GetUserInbox(userID, authToken string) ([]*model.UserInbox, error) {
 	var (
 		result   interface{}
 		err      error
@@ -832,7 +832,7 @@ func (w *Worker) GetUserInbox(userID string) ([]*model.UserInbox, error) {
 		result, err = request.HTTPRequestCall(
 			fmt.Sprintf("%s/message/inbox/%s", w.messageServiceUrl, userID),
 			http.MethodGet,
-			userID,
+			authToken,
 			nil,
 			5*time.Second,
 		)

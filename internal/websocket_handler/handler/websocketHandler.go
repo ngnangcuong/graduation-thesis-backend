@@ -75,7 +75,7 @@ func (h *Handler) EstablishConnetionWithUser(c *gin.Context) {
 		return
 	}
 
-	if err := h.worker.KeepUsersConnection(conn, userID); err != nil {
+	if err := h.worker.KeepUsersConnection(conn, userID, authToken); err != nil {
 		errorResponse := responseModel.ErrorResponse{
 			Status:       http.StatusBadRequest,
 			ErrorMessage: err.Error(),
