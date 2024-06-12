@@ -119,9 +119,9 @@ func (t *TokenService) ValidateToken(tokenString string) (*jwt.Token, error) {
 		return nil, err
 	}
 
-	if _, ok := token.Claims.(jwt.MapClaims); !ok || !token.Valid {
-		return nil, fmt.Errorf("token has expired")
-	}
+	// if _, ok := token.Claims.(jwt.MapClaims); !ok || !token.Valid {
+	// 	return nil, fmt.Errorf("token has expired")
+	// }
 
 	return token, nil
 }
