@@ -37,7 +37,7 @@ func (w *WebsocketHandler) GetWebsocketHandlerList(c *gin.Context) {
 		return
 	}
 
-	c.JSON(successResponse.Status, errorResponse)
+	c.JSON(successResponse.Status, successResponse)
 }
 
 func (w *WebsocketHandler) AddNewWebsocketHandler(c *gin.Context) {
