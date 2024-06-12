@@ -200,7 +200,7 @@ func (w *WebsocketManagerService) GetWebsocketHandlers(ctx context.Context) (*re
 		return nil, &errorResponse
 	}
 
-	websocketHandlers := make([]model.WebsocketHandlerClient, len(mapIDToIP))
+	var websocketHandlers []model.WebsocketHandlerClient
 	for ID, IPAddress := range mapIDToIP {
 		numberClient, err := w.websocketManagerRepo.GetNumberClient(ctx, ID)
 		if err != nil {
