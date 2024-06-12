@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -45,7 +47,7 @@ func (w *WebsocketForwarder) getListWebsocketHandlers() ([]model.WebsocketHandle
 	)
 	for i := 1; i <= w.maxRetries; i++ {
 		result, err = request.HTTPRequestCall(
-			w.websocketManagerUrl,
+			fmt.Sprintf("%s/websocket_handler", w.websocketManagerUrl),
 			http.MethodGet,
 			"",
 			nil,
@@ -62,7 +64,9 @@ func (w *WebsocketForwarder) getListWebsocketHandlers() ([]model.WebsocketHandle
 		return nil, err
 	}
 
-	listWebsocketHandlers, _ := result.([]model.WebsocketHandler)
+	listWebsocketHandlersJSON, _ := json.Marshal(result)
+	var listWebsocketHandlers []model.WebsocketHandler
+	json.Unmarshal(listWebsocketHandlersJSON, &listWebsocketHandlers)
 	return listWebsocketHandlers, nil
 }
 

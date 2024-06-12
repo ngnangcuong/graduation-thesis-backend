@@ -1,14 +1,14 @@
 app:
-  port:
+  port: 8079
 
 websocket_manager:
-  url:
+  url: http://websocket_manager:8080/v1
 
 logger:
-  level:
-  path:
+  level: debug
+  path: ./log/websocket_forwarder/info.log
 
-timeout:
-max_retries:
-retry_interval:
+timeout: 5s
+max_retries: 5
+retry_interval: 1s
 

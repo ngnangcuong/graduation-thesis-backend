@@ -1,6 +1,17 @@
 version: '3'
 
 services:
+  websocket_forwarder:
+    image: websocket_forwarder:1.0
+    ports: 
+      - "8079:8079"
+    deploy:
+      resources:
+        limits:
+          memory: 60m
+    volumes:
+      - '../config/websocket_forwarder/:/graduation-thesis/config/websocket_forwarder/'
+
   websocket_manager:
     image: websocket_manager:1.0
     ports: 
