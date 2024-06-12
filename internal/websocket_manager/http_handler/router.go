@@ -16,7 +16,7 @@ func NewRouter(userHandler *UserHandler, websocketHandler *WebsocketHandler) *gi
 		websocketHandlerPath.POST("/ping", websocketHandler.Ping)
 		websocketHandlerPath.GET("/:id", websocketHandler.GetUserList)
 		websocketHandlerPath.POST("/register", websocketHandler.AddNewWebsocketHandler)
-		websocketHandlerPath.GET("/", websocketHandler.GetWebsocketHandlerList)
+		websocketHandlerPath.GET("", websocketHandler.GetWebsocketHandlerList)
 		websocketHandlerPath.POST("/user", websocketHandler.AddNewUser)
 		websocketHandlerPath.DELETE("/user", websocketHandler.DisconnectUser)
 	}
