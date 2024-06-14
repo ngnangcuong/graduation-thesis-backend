@@ -10,6 +10,8 @@ RUN mkdir -p internal/asset
 RUN mkdir -p pkg
 RUN mkdir -p config/asset
 RUN mkdir -p local
+RUN mkdir -p log/asset
+RUN touch log/asset/info.log
 
 COPY ./cmd/asset/main.go ./cmd/asset
 COPY ./internal/asset ./internal/asset
