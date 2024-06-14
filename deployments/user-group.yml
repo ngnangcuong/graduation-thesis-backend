@@ -11,6 +11,7 @@ services:
           memory: 60m
     volumes:
       - '../config/user/:/graduation-thesis/config/user/'
+    restart: unless-stopped
   
   group_service:
     image: group_service:1.0
@@ -22,3 +23,4 @@ services:
           memory: 60m
     volumes:
       - '../config/group/:/graduation-thesis/config/group/'
+    restart: unless-stopped

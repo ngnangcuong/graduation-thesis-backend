@@ -11,6 +11,7 @@ services:
           memory: 60m
     volumes:
       - '../config/websocket_forwarder/:/graduation-thesis/config/websocket_forwarder/'
+    restart: unless-stopped
 
   websocket_manager:
     image: websocket_manager:1.0
@@ -22,6 +23,8 @@ services:
           memory: 60m
     volumes:
       - '../config/websocket_manager/:/graduation-thesis/config/websocket_manager/'
+    restart: unless-stopped
+
   websocket_handler_1:
     image: websocket_handler:1.0
     ports: 
@@ -32,6 +35,7 @@ services:
       resources:
         limits:
           memory: 60m
+    restart: unless-stopped
   
   websocket_handler_2:
     image: websocket_handler:1.0
@@ -43,3 +47,4 @@ services:
       resources:
         limits:
           memory: 60m
+    restart: unless-stopped

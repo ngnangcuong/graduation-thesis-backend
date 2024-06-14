@@ -11,3 +11,4 @@ services:
           memory: 60m
     volumes:
       - '../config/message/:/graduation-thesis/config/message/'
+    restart: unless-stopped

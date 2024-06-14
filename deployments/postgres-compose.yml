@@ -16,6 +16,8 @@ services:
       resources:
         limits:
           memory: 2000m
+    restart: unless-stopped
+
 
   pgadmin:
     image: dpage/pgadmin4:latest

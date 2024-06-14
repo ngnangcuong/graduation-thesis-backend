@@ -11,3 +11,4 @@ services:
           memory: 60m
     volumes:
       - '../config/authenticator/:/graduation-thesis/config/authenticator/'
+    restart: unless-stopped

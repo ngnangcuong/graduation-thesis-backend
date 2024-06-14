@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  asset:
+    image: asset:1.0
+    ports: 
+      - "8093:8093"
+    deploy:
+      resources:
+        limits:
+          memory: 60m
+    volumes:
+      - '../config/asset/:/graduation-thesis/config/asset/'
+    restart: unless-stopped
