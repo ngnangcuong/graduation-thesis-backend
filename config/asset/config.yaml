@@ -1,6 +1,7 @@
 app:
-  port: 8081
-  local_dir: D:\\go\\src\\graduation-thesis\\config\\asset
+  port: 8093
+  # local_dir: D:\\go\\src\\graduation-thesis\\config\\asset
+  local_dir: ./local
 
 logger:
   level: debug

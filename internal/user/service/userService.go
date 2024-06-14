@@ -331,7 +331,7 @@ func (u *UserService) VerifyCredential(ctx context.Context, loginRequest *model.
 	check, checkErr := argon2.Compare(user.Password, []byte(loginRequest.Password))
 	if !check || checkErr != nil {
 		errorResponse := responseModel.ErrorResponse{
-			Status:       http.StatusUnauthorized,
+			Status:       http.StatusBadRequest,
 			ErrorMessage: custom_error.ErrNoPermission.Error(),
 		}
 		return nil, &errorResponse
