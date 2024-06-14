@@ -8,5 +8,5 @@ logger:
   path: ./log/asset/info.log
 
 seaweed:
-  master_url: http://localhost:9333
-  volume_url: http://localhost:8080
+  master_url: http://master:9333
+  volume_url: http://volume:9090
