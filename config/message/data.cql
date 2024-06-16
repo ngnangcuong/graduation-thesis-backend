@@ -40,7 +40,8 @@ CREATE TABLE IF NOT EXISTS graduation_thesis.READ_RECEIPT (
 
 CREATE TABLE IF NOT EXISTS graduation_thesis.LASTSEEN (
     user_id text,
-    status text
+    status text,
+    PRIMARY KEY (user_id)
 );
 
 CREATE TABLE USER_INBOX {

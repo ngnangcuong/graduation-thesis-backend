@@ -16,3 +16,5 @@ authenticator_url: http://authenticator:8085/v1/validate
 
 app:
   port: 8090
+  key:
+  cert: 

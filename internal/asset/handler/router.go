@@ -16,7 +16,7 @@ func NewRouter(assetHandler *AssetHandler) *gin.Engine {
 
 	absolutePath := r.Group("/v1")
 	{
-		absolutePath.POST("/", assetHandler.Upload)       // Upload
+		absolutePath.POST("", assetHandler.Upload)        // Upload
 		absolutePath.GET("/:fid", assetHandler.Get)       // Get
 		absolutePath.DELETE("/:fid", assetHandler.Delete) // Delete
 	}

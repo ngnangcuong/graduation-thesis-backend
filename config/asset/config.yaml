@@ -2,6 +2,8 @@ app:
   port: 8093
   # local_dir: D:\\go\\src\\graduation-thesis\\config\\asset
   local_dir: ./local
+  key:
+  cert: 
 
 logger:
   level: debug

@@ -1,5 +1,7 @@
 app:
   port: 8079
+  key:
+  cert: 
 
 websocket_manager:
   url: http://websocket_manager:8080/v1

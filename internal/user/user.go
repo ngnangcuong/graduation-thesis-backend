@@ -1,6 +1,7 @@
 package user
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"sync"
@@ -45,12 +46,25 @@ func Run() {
 	authHandler := handler.NewAuthHandler(authService, tokenService, userService)
 	router := handler.GetRouter(authHandler, userHandler)
 
+	TLSConfig := &tls.Config{
+		PreferServerCipherSuites: true,
+		CipherSuites: []uint16{
+			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
+			tls.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
+			tls.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+		},
+		MinVersion: tls.VersionTLS12,
+	}
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", viper.GetInt("app.port")),
 		Handler:      router,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  5 * time.Minute,
 		WriteTimeout: 10 * time.Minute,
+		TLSConfig:    TLSConfig,
 	}
 
 	serveHTTP := func(wg *sync.WaitGroup) {
@@ -61,8 +75,17 @@ func Run() {
 		}
 	}
 
+	serveHTTPS := func(wg *sync.WaitGroup) {
+		defer wg.Done()
+		err := srv.ListenAndServeTLS(viper.GetString("app.cert"), viper.GetString("app.key"))
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	wg := sync.WaitGroup{}
-	wg.Add(1)
+	wg.Add(2)
 	go serveHTTP(&wg)
+	go serveHTTPS(&wg)
 	wg.Wait()
 }
