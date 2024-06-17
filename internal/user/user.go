@@ -67,13 +67,13 @@ func Run() {
 		TLSConfig:    TLSConfig,
 	}
 
-	serveHTTP := func(wg *sync.WaitGroup) {
-		defer wg.Done()
-		err := srv.ListenAndServe()
-		if err != nil {
-			panic(err)
-		}
-	}
+	// serveHTTP := func(wg *sync.WaitGroup) {
+	// 	defer wg.Done()
+	// 	err := srv.ListenAndServe()
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// }
 
 	serveHTTPS := func(wg *sync.WaitGroup) {
 		defer wg.Done()
@@ -84,8 +84,8 @@ func Run() {
 	}
 
 	wg := sync.WaitGroup{}
-	wg.Add(2)
-	go serveHTTP(&wg)
+	wg.Add(1)
+	// go serveHTTP(&wg)
 	go serveHTTPS(&wg)
 	wg.Wait()
 }
