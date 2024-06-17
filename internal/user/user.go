@@ -56,7 +56,8 @@ func Run() {
 			tls.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
 			tls.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
 		},
-		MinVersion: tls.VersionTLS12,
+		MinVersion:         tls.VersionTLS12,
+		InsecureSkipVerify: true,
 	}
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", viper.GetInt("app.port")),
