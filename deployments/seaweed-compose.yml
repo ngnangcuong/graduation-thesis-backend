@@ -35,7 +35,7 @@ services:
       - 8333:8333
       - 9327:9327
       - 8334:8334
-    command: 's3 -filer="filer:8888" -ip.bind=0.0.0.0 -metricsPort=9327 -s3.port.https=8334 -s3.cert.file=/etc/seaweedfs/certs/server.crt -s3.key.file=/etc/seaweedfs/certs/server.key'
+    command: 's3 -filer="filer:8888" -ip.bind=0.0.0.0 -metricsPort=9327 -port.https=8334 -cert.file=/etc/seaweedfs/certs/server.crt -key.file=/etc/seaweedfs/certs/server.key'
     volumes:
       - ./certs:/etc/seaweedfs/certs/
     depends_on:
