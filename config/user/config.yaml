@@ -14,6 +14,7 @@ token:
   refresh_secret: tErC3s_hS3rfer
 
 app:
-  port: 8098
+  https_port: 8098
+  http_port: 18098
   key:
   cert: 

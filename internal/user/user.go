@@ -59,8 +59,8 @@ func Run() {
 		MinVersion:         tls.VersionTLS12,
 		InsecureSkipVerify: true,
 	}
-	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%d", viper.GetInt("app.port")),
+	httpsSrv := &http.Server{
+		Addr:         fmt.Sprintf(":%d", viper.GetInt("app.https_port")),
 		Handler:      router,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  5 * time.Minute,
@@ -68,25 +68,32 @@ func Run() {
 		TLSConfig:    TLSConfig,
 	}
 
-	// serveHTTP := func(wg *sync.WaitGroup) {
-	// 	defer wg.Done()
-	// 	err := srv.ListenAndServe()
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-	// }
+	httpSrv := &http.Server{
+		Addr:         fmt.Sprintf(":%d", viper.GetInt("app.http_port")),
+		Handler:      router,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Minute,
+		WriteTimeout: 10 * time.Minute,
+	}
+	serveHTTP := func(wg *sync.WaitGroup) {
+		defer wg.Done()
+		err := httpSrv.ListenAndServe()
+		if err != nil {
+			panic(err)
+		}
+	}
 
 	serveHTTPS := func(wg *sync.WaitGroup) {
 		defer wg.Done()
-		err := srv.ListenAndServeTLS(viper.GetString("app.cert"), viper.GetString("app.key"))
+		err := httpsSrv.ListenAndServeTLS(viper.GetString("app.cert"), viper.GetString("app.key"))
 		if err != nil {
 			panic(err)
 		}
 	}
 
 	wg := sync.WaitGroup{}
-	wg.Add(1)
-	// go serveHTTP(&wg)
+	wg.Add(2)
+	go serveHTTP(&wg)
 	go serveHTTPS(&wg)
 	wg.Wait()
 }
