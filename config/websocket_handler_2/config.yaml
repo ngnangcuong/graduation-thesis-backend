@@ -1,5 +1,6 @@
 app:
-  port: 8082
+  http_port: 8082
+  https_port: 18082
   key:
   cert: 
 id: 2

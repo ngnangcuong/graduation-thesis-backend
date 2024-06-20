@@ -8,7 +8,7 @@ kafka:
   topics: messages
 
 3rd_party:
-  group_url: http://group_service:8099/v1
+  group_url: http://group_service:18099/v1
   websocket_manager_url: http://websocket_manager:8080/v1
 
 timeout: 5s

@@ -1,5 +1,6 @@
 app:
-  port: 8081
+  https_port: 8081
+  http_port: 18081
   key:
   cert: 
 id: 1
@@ -19,8 +20,8 @@ kafka:
   topic: websocket_connection
 
 3rd_party:
-  group_service_url: http://group_service:8099/v1
-  message_service_url: http://message_service:8090/v1
+  group_service_url: http://group_service:18099/v1
+  message_service_url: http://message_service:18090/v1
   websocket_manager_url: http://websocket_manager:8080/v1
   authenticator_url: http://authenticator:8085/v1/validate
   
