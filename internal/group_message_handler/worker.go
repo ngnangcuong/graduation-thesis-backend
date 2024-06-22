@@ -243,7 +243,7 @@ func (w *Worker) sendMessage(userID string, message Message) {
 }
 
 func (w *Worker) establishWebsocketConnection(websocketHandler *WebsocketHandler) (*websocket.Conn, error) {
-	websocketHandlerURL := url.URL{Scheme: "wss", Host: websocketHandler.IPAddress, Path: "/peer/ws", RawQuery: "websocket_id=group_message_handler"}
+	websocketHandlerURL := url.URL{Scheme: "ws", Host: websocketHandler.IPAddress, Path: "/peer/ws", RawQuery: "websocket_id=group_message_handler"}
 	conn, _, err := websocket.DefaultDialer.Dial(websocketHandlerURL.String(), nil)
 	if err != nil {
 		return nil, err
