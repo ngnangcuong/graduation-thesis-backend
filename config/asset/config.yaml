@@ -4,7 +4,7 @@ app:
   local_dir: ./local
   key:
   cert: 
-
+  base_url:
 logger:
   level: debug
   path: ./log/asset/info.log

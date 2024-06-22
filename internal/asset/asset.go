@@ -38,6 +38,7 @@ func Run() {
 	assetRepo := repository.NewAssetRepo(
 		viper.GetString("seaweed.master_url"),
 		viper.GetString("seaweed.volume_url"),
+		viper.GetString("app.base_url"),
 	)
 	assetService := service.NewAssetService(assetRepo, mapError, logger)
 	assetHandler := handler.NewAssetHandler(viper.GetString("app.local_dir"), assetService)

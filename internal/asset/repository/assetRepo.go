@@ -20,12 +20,14 @@ import (
 type AssetRepo struct {
 	seaweedMasterUrl string
 	seaweedVolumeUrl string
+	baseUrl          string
 }
 
-func NewAssetRepo(seaweedMasterUrl string, seaweedVolumeUrl string) *AssetRepo {
+func NewAssetRepo(seaweedMasterUrl, seaweedVolumeUrl, baseUrl string) *AssetRepo {
 	return &AssetRepo{
 		seaweedMasterUrl: seaweedMasterUrl,
 		seaweedVolumeUrl: seaweedVolumeUrl,
+		baseUrl:          baseUrl,
 	}
 }
 
@@ -120,7 +122,7 @@ func (a *AssetRepo) Upload(ctx context.Context, file *model.UploadFile) (string,
 		return "", err
 	}
 
-	return fmt.Sprintf("%s/%s", a.seaweedVolumeUrl, fid), nil
+	return fmt.Sprintf("%s/%s", a.baseUrl, fid), nil
 }
 
 func (a *AssetRepo) Delete(ctx context.Context, fid string) error {
