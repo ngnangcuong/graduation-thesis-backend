@@ -528,7 +528,7 @@ func (w *Worker) Register() error {
 	ipAddress := GetLocalIP()
 	registerRequest := model.AddNewWebsocketHandlerRequest{
 		ID:        w.id,
-		IPAddress: fmt.Sprintf("%s:%d", ipAddress, viper.GetInt("app.port")),
+		IPAddress: fmt.Sprintf("%s:%d", ipAddress, viper.GetInt("app.http_port")),
 	}
 	body := new(bytes.Buffer)
 	if err := json.NewEncoder(body).Encode(&registerRequest); err != nil {

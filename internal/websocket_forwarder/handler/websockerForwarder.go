@@ -85,7 +85,7 @@ func (w *WebsocketForwarder) HandleRequest(c *gin.Context) {
 	successResponse := responseModel.SuccessResponse{
 		Status: http.StatusOK,
 		Result: model.HandleRequestResponse{
-			IPAddress: websocketHandler.IPAddress,
+			IPAddress: websocketHandler.IPAddress[1:],
 		},
 	}
 	c.JSON(successResponse.Status, successResponse)
