@@ -147,3 +147,19 @@ func (a *AssetRepo) Delete(ctx context.Context, fid string) error {
 	defer res.Body.Close()
 	return nil
 }
+
+func (a *AssetRepo) Get(ctx context.Context, fid string) ([]byte, string, error) {
+	url := fmt.Sprintf("%s/%s", a.seaweedVolumeUrl, fid)
+	res, err := http.Get(url)
+	if err != nil {
+		return nil, "", err
+	}
+	defer res.Body.Close()
+	content, rErr := io.ReadAll(res.Body)
+	if rErr != nil {
+		return nil, "", rErr
+	}
+
+	contentType := http.DetectContentType(content)
+	return content, contentType, nil
+}

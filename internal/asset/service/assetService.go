@@ -72,8 +72,8 @@ func (a *AssetService) Upload(ctx context.Context, location, dataType string) (*
 	return &successResponse, nil
 }
 
-func (a *AssetService) Get(ctx context.Context) (*responseModel.SuccessResponse, *responseModel.ErrorResponse) {
-	return nil, nil
+func (a *AssetService) Get(ctx context.Context, fid string) ([]byte, string, error) {
+	return a.assetRepo.Get(ctx, fid)
 }
 
 func (a *AssetService) Delete(ctx context.Context, fid string) (*responseModel.SuccessResponse, *responseModel.ErrorResponse) {

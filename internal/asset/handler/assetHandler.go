@@ -47,13 +47,17 @@ func (a *AssetHandler) Upload(c *gin.Context) {
 }
 
 func (a *AssetHandler) Get(c *gin.Context) {
-	successResponse, errorResponse := a.assetService.Get(c)
-	if errorResponse != nil {
-		c.JSON(errorResponse.Status, errorResponse)
+	fid := c.Param("fid")
+	content, contentType, err := a.assetService.Get(c, fid)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
-	c.JSON(successResponse.Status, successResponse)
+	c.Header("Content-Type", contentType)
+	c.Writer.Write(content)
 }
 
 func (a *AssetHandler) Delete(c *gin.Context) {
